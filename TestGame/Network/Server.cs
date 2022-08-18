@@ -36,6 +36,9 @@ public class Server
         _writer.Reset();
         _writer.Put(new JoinAcceptPacket(){Id = 0, MapSeed = _syncService.GetMapSeed()});
         peer.Send(_writer, DeliveryMethod.Unreliable);
+        _writer.Reset();
+        _writer.Put(_syncService.GetPlayerData());
+        peer.Send(_writer, DeliveryMethod.Unreliable);
     }
 
     private void OnNetworkReceiveEvent(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
@@ -48,6 +51,9 @@ public class Server
                 _syncService.Join(reader.Get<JoinPacket>());
                 break;
             case PacketType.JoinAccept:
+                break;
+            case PacketType.SpawnPlayer:
+                _syncService.SpawnPlayer(reader.Get<SpawnPlayerPacket>());
                 break;
         }
         reader.Recycle();

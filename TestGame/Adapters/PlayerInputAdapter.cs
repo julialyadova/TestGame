@@ -1,26 +1,25 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
-using TestGame.Core.Entities.Creatures;
-using TestGame.Tools;
-using TestGame.UserInput;
+using TestGame.Core.Map;
 
 namespace TestGame.Adapters;
 
 public class PlayerInputAdapter
 {
-    private Player _player;
+    private PlayerController _playerController;
     private MapToScreenAdapter _screenAdapter;
+    private WorldMap _map;
     
     public PlayerInputAdapter(IServiceProvider services)
     {
-        _player = services.GetRequiredService<Player>();
+        _playerController = services.GetRequiredService<PlayerController>();
         _screenAdapter = services.GetRequiredService<MapToScreenAdapter>();
     }
 
     public void Move(Vector2 direction, GameTime gameTime)
     {
-        _player.Move(direction * (float)gameTime.ElapsedGameTime.TotalSeconds);
-        _screenAdapter.SetMapOffset(-_player.Position);
+        _playerController.Move(direction * (float)gameTime.ElapsedGameTime.TotalSeconds);
+        _screenAdapter.SetMapOffset(-_playerController.Player.Position);
     }
 }

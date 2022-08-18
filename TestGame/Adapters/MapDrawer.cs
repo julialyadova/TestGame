@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Entities.Structures;
 using TestGame.Core.Map;
-using TestGame.Tools;
 
 namespace TestGame.Adapters;
 
@@ -14,7 +12,6 @@ public class MapDrawer
 {
     private const int TextureSize = 128;
     private WorldMap _map;
-    private Player _player;
     private MapToScreenAdapter _screenAdapter;
     private MapTexturesRepository _textures;
 
@@ -26,7 +23,6 @@ public class MapDrawer
         _map = services.GetRequiredService<WorldMap>();
         _screenAdapter = services.GetRequiredService<MapToScreenAdapter>();
         _textures = services.GetRequiredService<MapTexturesRepository>();
-        _player = services.GetRequiredService<Player>();
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -54,9 +50,12 @@ public class MapDrawer
     {
         for (int level = 0; level < _map.Size.Y; level++)
         {
-            if ((int)_player.Position.Y == level)
-                DrawPlayer(spriteBatch);
-                
+            foreach (var player in _map.Players)
+            {
+                if ((int)player.Position.Y == level)
+                    DrawPlayer(player, spriteBatch);
+            }
+
             if (_map.Structures[level] == null)
                 continue;
 
@@ -91,12 +90,12 @@ public class MapDrawer
         spriteBatch.Draw(_textures.GetTexture(wall.TextureName), _drawRect, _sourceRect, Color.White );
     }
 
-    private void DrawPlayer(SpriteBatch spriteBatch)
+    private void DrawPlayer(Player player, SpriteBatch spriteBatch)
     {
-        var playerSizeOffset = new Vector2(_player.Size.X / 2, _player.Size.Y);
-        _drawRect.Location = _screenAdapter.GetScreenPosition(_player.Position - playerSizeOffset).ToPoint();
-        _drawRect.Size = (_player.Size * _screenAdapter.TileSize).ToPoint();
-        spriteBatch.Draw(_textures.BlankTexture(), _drawRect, Color.BurlyWood);
+        var playerSizeOffset = new Vector2(player.Size.X / 2, player.Size.Y);
+        _drawRect.Location = _screenAdapter.GetScreenPosition(player.Position - playerSizeOffset).ToPoint();
+        _drawRect.Size = (player.Size * _screenAdapter.TileSize).ToPoint();
+        spriteBatch.Draw(_textures.GetTexture(player.TextureName), _drawRect, Color.BurlyWood);
     }
 
     private void DrawPointer(SpriteBatch spriteBatch)

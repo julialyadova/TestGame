@@ -25,13 +25,18 @@ public class GameUI
         _fonts = services.GetRequiredService<FontsRepository>();
         _elements = new();
         
-        var button = new Button(new Rectangle(10, 24, 60, 60), "Textures/UI/btn_host");
+        var button = new Button(new Rectangle(10, 24, 60, 60), "Textures/UI/btn_exit");
+        button.SetCommand(services.GetRequiredService<ExitPartyCommand>());
+        Add(button);
+        
+        button = new Button(new Rectangle(80, 24, 60, 60), "Textures/UI/btn_host");
         button.SetCommand(services.GetRequiredService<StartServerCommand>());
         Add(button);
         
-        button = new Button(new Rectangle(80, 24, 60, 60), "Textures/UI/btn_join");
+        button = new Button(new Rectangle(150, 24, 60, 60), "Textures/UI/btn_join");
         button.SetCommand(services.GetRequiredService<JoinGameCommand>());
         Add(button);
+        
     }
 
     public void Log(string message)

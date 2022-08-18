@@ -11,7 +11,8 @@ public class UITexturesRepository
     private List<string> textureNames = new ()
     {
         "Textures/UI/btn_host",
-        "Textures/UI/btn_join"
+        "Textures/UI/btn_join",
+        "Textures/UI/btn_exit"
     };
     private Dictionary<string, Texture2D> textures = new ();
     private Texture2D _undefinedTexture;

@@ -40,6 +40,12 @@ public class Client
                 break;
             case PacketType.JoinAccept:
                 _syncService.AcceptJoin(reader.Get<JoinAcceptPacket>());
+                _writer.Reset();
+                _writer.Put(_syncService.GetPlayerData());
+                _server.Send(_writer, DeliveryMethod.Unreliable);
+                break;
+            case PacketType.SpawnPlayer:
+                _syncService.SpawnPlayer(reader.Get<SpawnPlayerPacket>());
                 break;
         }
         reader.Recycle();

@@ -21,7 +21,6 @@ public class Game1 : Game, IHostedService
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
-    private Player _player;
     private GameUI _ui;
     private readonly MapTexturesRepository _mapTexturesRepository;
     private readonly FontsRepository _fontsRepository;
@@ -43,7 +42,6 @@ public class Game1 : Game, IHostedService
         _screenAdapter = services.GetRequiredService<MapToScreenAdapter>();
         _mapDrawer = services.GetRequiredService<MapDrawer>();
         
-        _player = services.GetRequiredService<Player>();
         _ui = services.GetRequiredService<GameUI>();
         _server = services.GetRequiredService<Server>();
         _client = services.GetRequiredService<Client>();
@@ -62,8 +60,6 @@ public class Game1 : Game, IHostedService
         _moveInput = services.GetRequiredService<MoveInput>();
         _moveInput.AddOnMoveListener(playerInputAdapter.Move);
 
-
-        _player.Position = new Vector2(10, 10);
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;

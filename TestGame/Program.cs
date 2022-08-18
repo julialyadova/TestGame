@@ -1,13 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Xna.Framework;
 using TestGame;
 using TestGame.Adapters;
 using TestGame.Commands;
-using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Map;
 using TestGame.Network;
-using TestGame.Tools;
 using TestGame.UI;
 using TestGame.UserInput;
 
@@ -24,7 +21,7 @@ builder.ConfigureServices(
 
         services.AddScoped<GameUI>();
         services.AddScoped<WorldMap>();
-        services.AddScoped<Player>();
+        services.AddScoped<PlayerController>();
         
         services.AddScoped<FontsRepository>();
         services.AddScoped<UITexturesRepository>();
@@ -42,6 +39,7 @@ builder.ConfigureServices(
         
         services.AddScoped<StartServerCommand>();
         services.AddScoped<JoinGameCommand>();
+        services.AddScoped<ExitPartyCommand>();
     });
 
 var host = builder.Build();

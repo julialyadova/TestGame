@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Base;
+using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Entities.Structures;
 
 namespace TestGame.Core.Map;
@@ -9,6 +10,7 @@ public class WorldMap
 {
     public int Seed;
     public readonly Point Size = new(40, 40);
+    public List<Player> Players;
     public List<Structure>[] Structures;
     public Structure[,] StructuresMap;
     public Surface[,] SurfacesMap;
@@ -18,6 +20,7 @@ public class WorldMap
 
     public WorldMap()
     {
+        Players = new List<Player>();
         Structures = new List<Structure>[Size.Y];
         StructuresMap = new Structure[Size.X,Size.Y];
         SurfacesMap = new Surface[Size.X, Size.Y];
