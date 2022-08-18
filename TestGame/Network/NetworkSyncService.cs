@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using TestGame.Adapters;
@@ -56,6 +57,25 @@ public class NetworkSyncService
         var packet = new SpawnPlayerPacket();
         packet.Id = _userPlayer.Id;
         packet.Name = _userPlayer.Name;
+        packet.X = _userPlayer.Position.X;
+        packet.Y = _userPlayer.Position.Y;
+        return packet;
+    }
+    
+    public void SyncPlayer(SyncPlayerPacket packet)
+    {
+        var player = _map.Players.Find(p => p.Id == packet.Id);
+        if (player == null)
+            return;
+
+        player.Position.X = packet.X;
+        player.Position.Y = packet.Y;
+    }
+    
+    public SyncPlayerPacket GetPlayerState()
+    {
+        var packet = new SyncPlayerPacket();
+        packet.Id = _userPlayer.Id;
         packet.X = _userPlayer.Position.X;
         packet.Y = _userPlayer.Position.Y;
         return packet;

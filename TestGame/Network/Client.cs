@@ -47,6 +47,9 @@ public class Client
             case PacketType.SpawnPlayer:
                 _syncService.SpawnPlayer(reader.Get<SpawnPlayerPacket>());
                 break;
+            case PacketType.SyncPlayer:
+                _syncService.SyncPlayer(reader.Get<SyncPlayerPacket>());
+                break;;
         }
         reader.Recycle();
     }
@@ -63,6 +66,13 @@ public class Client
     public void Update()
     {
         _client.PollEvents();
+
+        if (_server != null)
+        {
+            _writer.Reset();
+            _writer.Put(_syncService.GetPlayerState());
+            _server.Send(_writer, DeliveryMethod.Unreliable);
+        }
     }
 
     public void Stop()

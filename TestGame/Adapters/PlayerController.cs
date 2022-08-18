@@ -17,6 +17,7 @@ public class PlayerController
     {
         _map = services.GetRequiredService<WorldMap>();
         Player = new Player();
+        Player.Id = (byte)new Random().Next(0, 100);
         _map.Players.Add(Player);
     }
 

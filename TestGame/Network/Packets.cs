@@ -7,7 +7,8 @@ namespace TestGame.Network;
 {
     Join,
     JoinAccept,
-    SpawnPlayer
+    SpawnPlayer,
+    SyncPlayer
 }
 
 public struct JoinPacket : INetSerializable
@@ -65,6 +66,28 @@ public struct SpawnPlayerPacket : INetSerializable
     {
         Id = reader.GetByte();
         Name = reader.GetString();
+        X = reader.GetFloat();
+        Y = reader.GetFloat();
+    }
+}
+
+public struct SyncPlayerPacket : INetSerializable
+{
+    public byte Id;
+    public float X;
+    public float Y;
+
+    public void Serialize(NetDataWriter writer)
+    {
+        writer.Put((byte)PacketType.SyncPlayer);
+        writer.Put(Id);
+        writer.Put(X);
+        writer.Put(Y);
+    }
+
+    public void Deserialize(NetDataReader reader)
+    {
+        Id = reader.GetByte();
         X = reader.GetFloat();
         Y = reader.GetFloat();
     }
