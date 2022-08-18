@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace TestGame.UserInput;
 
-public class WASDMoveInput : IMoveInput
+public class WASDMoveInput : MoveInput
 {
     private Vector2 _direction;
     
@@ -12,7 +12,7 @@ public class WASDMoveInput : IMoveInput
         return _direction;
     }
     
-    public void UpdateState()
+    public override void Update(GameTime gameTime)
     {
         _direction = Vector2.Zero;
         
@@ -42,5 +42,7 @@ public class WASDMoveInput : IMoveInput
         {
             _direction.Normalize();
         }
+        
+        Move(_direction, gameTime);
     }
 }

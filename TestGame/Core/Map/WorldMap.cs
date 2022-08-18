@@ -40,7 +40,7 @@ public class WorldMap
     public void Click(Point position)
     {
         //Build(new Wall(1),x,y);
-        Build(new Tree(), position);
+        //Build(new Tree(), position);
     }
 
     public bool TileIsEmpty(Point position)

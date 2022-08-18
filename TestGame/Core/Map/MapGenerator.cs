@@ -8,23 +8,21 @@ namespace TestGame.Core.Map;
 
 public class MapGenerator
 {
-    public void Generate(WorldMap map)
+    public void Generate(WorldMap map, int seed = 40006000)
     {
-        var random = new Random();
-        for (int x = 0; x < map.Size.X; x++)
+        var random = new Random(seed);
         for (int y = 0; y < map.Size.Y; y++)
         {
-            map.SurfacesMap[x, y] = new Grass();
-            if (random.Next(0, 10) < 2)
+            map.Structures[y] = null;
+            for (int x = 0; x < map.Size.X; x++)
             {
-                if (random.Next(0,2) == 1)
+                map.StructuresMap[x, y] = null;
+                map.SurfacesMap[x, y] = new Grass();
+                if (random.Next(0, 10) == 1)
+                {
                     map.Build(new Tree(), new Point(x,y));
-                else
-                    map.Build(new SmallTree(), new Point(x,y));
+                }
             }
-            
-            if (random.Next(0,10) == 5)
-                map.SurfacesMap[x, y] = new Water();
         }
     }
 }

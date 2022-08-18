@@ -6,7 +6,6 @@ namespace TestGame.UI;
 public abstract class UIElement
 {
     public readonly Rectangle Bounds;
-    public Texture2D Texture;
     public readonly string TextureName;
 
     public UIElement(Rectangle bounds, string texture = null)

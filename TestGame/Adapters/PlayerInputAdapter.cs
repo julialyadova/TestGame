@@ -9,24 +9,18 @@ namespace TestGame.Adapters;
 
 public class PlayerInputAdapter
 {
-    private IMoveInput _moveInput;
     private Player _player;
     private MapToScreenAdapter _screenAdapter;
     
     public PlayerInputAdapter(IServiceProvider services)
     {
-        _moveInput = services.GetRequiredService<IMoveInput>();
         _player = services.GetRequiredService<Player>();
         _screenAdapter = services.GetRequiredService<MapToScreenAdapter>();
     }
 
-    public void Update(GameTime gameTime)
+    public void Move(Vector2 direction, GameTime gameTime)
     {
-        _moveInput.UpdateState();
-        var direction = _moveInput.GetDirection() * (float)gameTime.ElapsedGameTime.TotalSeconds;
-        _player.Move(direction);
-        
+        _player.Move(direction * (float)gameTime.ElapsedGameTime.TotalSeconds);
         _screenAdapter.SetMapOffset(-_player.Position);
-        
     }
 }

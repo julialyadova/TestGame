@@ -1,6 +1,8 @@
-﻿namespace TestGame.UserInput;
+﻿using Microsoft.Xna.Framework;
+
+namespace TestGame.UserInput;
 
 public interface IUserInput
 {
-    void UpdateState();
+    void Update(GameTime gameTime);
 }

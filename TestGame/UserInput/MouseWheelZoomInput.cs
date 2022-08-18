@@ -1,21 +1,18 @@
-﻿using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace TestGame.UserInput;
 
-public class MouseWheelZoomInput : IZoomInput
+public class MouseWheelZoomInput : ZoomInput
 {
-    private int previousScrollWheelValue = 0;
-    private int deltaScrollWheelValue = 0;
+    private int _previousScrollWheelValue = 0;
+    private int _deltaScrollWheelValue = 0;
     
-    public void UpdateState()
+    public override void Update(GameTime gameTime)
     {
         var value = Mouse.GetState().ScrollWheelValue;
-        deltaScrollWheelValue = value - previousScrollWheelValue;
-        previousScrollWheelValue = value;
-    }
-
-    public int GetZoomChangeValue()
-    {
-        return deltaScrollWheelValue;
+        _deltaScrollWheelValue = value - _previousScrollWheelValue;
+        _previousScrollWheelValue = value;
+        Zoom(_deltaScrollWheelValue);
     }
 }

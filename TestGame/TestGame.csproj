@@ -19,6 +19,7 @@
         <EmbeddedResource Include="Icon.bmp" />
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="LiteNetLib" Version="1.0.0-rc.3" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0-preview.7.22375.6" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0-preview.7.22375.6" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0-preview.7.22375.6" />

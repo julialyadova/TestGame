@@ -1,16 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using TestGame.Adapters;
 using TestGame.Commands;
 using TestGame.Core.Entities.Creatures;
-using TestGame.Entities;
-using TestGame.Tools;
+using TestGame.Network;
 using TestGame.UI;
 using TestGame.UserInput;
 
@@ -23,21 +23,46 @@ public class Game1 : Game, IHostedService
 
     private Player _player;
     private GameUI _ui;
-    
     private readonly MapTexturesRepository _mapTexturesRepository;
-    private readonly MapInputAdapter _mapInputAdapter;
+    private readonly FontsRepository _fontsRepository;
+    private readonly UITexturesRepository _uiTexturesRepository;
     private readonly MapToScreenAdapter _screenAdapter;
-    private readonly PlayerInputAdapter _playerInputAdapter;
     private readonly MapDrawer _mapDrawer;
+    private readonly PointerInput _pointerInput;
+    private readonly ZoomInput _zoomInput;
+    private readonly MoveInput _moveInput;
+
+    private Server _server;
+    private Client _client;
 
     public Game1(IServiceProvider services)
     {
         _mapTexturesRepository = services.GetRequiredService<MapTexturesRepository>();
-        _mapInputAdapter = services.GetRequiredService<MapInputAdapter>();
+        _fontsRepository = services.GetRequiredService<FontsRepository>();
+        _uiTexturesRepository = services.GetRequiredService<UITexturesRepository>();
         _screenAdapter = services.GetRequiredService<MapToScreenAdapter>();
-        _playerInputAdapter = services.GetRequiredService<PlayerInputAdapter>();
         _mapDrawer = services.GetRequiredService<MapDrawer>();
+        
         _player = services.GetRequiredService<Player>();
+        _ui = services.GetRequiredService<GameUI>();
+        _server = services.GetRequiredService<Server>();
+        _client = services.GetRequiredService<Client>();
+        
+        var mapInputAdapter = services.GetRequiredService<MapInputAdapter>();
+        var uiInputAdapter = services.GetRequiredService<UIInputAdapter>();
+        var playerInputAdapter = services.GetRequiredService<PlayerInputAdapter>();
+        
+        _pointerInput = services.GetRequiredService<PointerInput>();
+        _pointerInput.AddOnClickListener(uiInputAdapter.Click);
+        _pointerInput.AddOnClickListener(mapInputAdapter.Click);
+
+        _zoomInput = services.GetRequiredService<ZoomInput>();
+        _zoomInput.AddOnZoomListener(mapInputAdapter.Zoom);
+        
+        _moveInput = services.GetRequiredService<MoveInput>();
+        _moveInput.AddOnMoveListener(playerInputAdapter.Move);
+
+
         _player.Position = new Vector2(10, 10);
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
@@ -46,12 +71,8 @@ public class Game1 : Game, IHostedService
 
     protected override void Initialize()
     {
-        _ui = new GameUI(_graphics);
-        var button = new Button(new Rectangle(10, 10, 100, 60));
-        button.SetCommand(new SelectBuildingToolCommand(_player));
-        _ui.Add(button);
-        
         _screenAdapter.SetCenter(new Point(_graphics.PreferredBackBufferWidth / 2, _graphics.PreferredBackBufferHeight / 2));
+        Debug.WriteLine("Game started");
         base.Initialize();
     }
 
@@ -59,15 +80,20 @@ public class Game1 : Game, IHostedService
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         
-        _ui.LoadContent(Content);
+        _uiTexturesRepository.LoadContent(GraphicsDevice, Content);
         _mapTexturesRepository.LoadContent(GraphicsDevice, Content);
+        _fontsRepository.LoadContent(GraphicsDevice, Content);
     }
 
     protected override void Update(GameTime gameTime)
     {
-        _mapInputAdapter.Update(gameTime);
-        _playerInputAdapter.Update(gameTime);
+        _pointerInput.Update(gameTime);
+        _zoomInput.Update(gameTime);
+        _moveInput.Update(gameTime);
 
+        _server.Update();
+        _client.Update();
+        
         base.Update(gameTime);
     }
 
