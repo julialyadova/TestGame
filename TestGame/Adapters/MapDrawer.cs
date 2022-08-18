@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Entities.Structures;
-using TestGame.Entities;
+using TestGame.Core.Map;
 using TestGame.Tools;
 
 namespace TestGame.Adapters;

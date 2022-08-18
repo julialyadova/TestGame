@@ -6,7 +6,8 @@ namespace TestGame.Network;
  public enum PacketType : byte
 {
     Join,
-    JoinAccept
+    JoinAccept,
+    SpawnPlayer
 }
 
 public struct JoinPacket : INetSerializable
@@ -41,5 +42,30 @@ public struct JoinAcceptPacket : INetSerializable
     {
         Id = reader.GetByte();
         MapSeed = reader.GetInt();
+    }
+}
+
+public struct SpawnPlayerPacket : INetSerializable
+{
+    public byte Id;
+    public string Name;
+    public float X;
+    public float Y;
+
+    public void Serialize(NetDataWriter writer)
+    {
+        writer.Put((byte)PacketType.SpawnPlayer);
+        writer.Put(Id);
+        writer.Put(Name);
+        writer.Put(X);
+        writer.Put(Y);
+    }
+
+    public void Deserialize(NetDataReader reader)
+    {
+        Id = reader.GetByte();
+        Name = reader.GetString();
+        X = reader.GetFloat();
+        Y = reader.GetFloat();
     }
 }

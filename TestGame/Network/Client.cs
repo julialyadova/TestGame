@@ -24,14 +24,14 @@ public class Client
 
     private void OnPeerConnectedEvent(NetPeer peer)
     {
-        Debug.WriteLine("Client connected to server: " + peer.EndPoint);
+        Debug.WriteLine("Client : connected to server: " + peer.EndPoint);
         _server = peer;
         _writer.Reset();
         _writer.Put(new JoinPacket() {Id = 1});
         _server.Send(_writer, DeliveryMethod.Unreliable);
     }
 
-    private void OnNetworkReceiveEvent(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliverymethod)
+    private void OnNetworkReceiveEvent(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
     {
         var packetType = (PacketType) reader.GetByte();
         switch (packetType)
@@ -45,12 +45,13 @@ public class Client
         reader.Recycle();
     }
 
-    public void Start(int port)
+    public void Start()
     {
-        _client.Start(port);
-        Debug.WriteLine($"Client is listening on port {port}");
-        Debug.WriteLine($"Client is connecting to localhost:{port}");
-        _client.Connect("localhost", 11037, "Bat");
+        _client.Start(Config.ClientPort);
+        Debug.WriteLine($"Client : listening on port {Config.ClientPort}");
+        Debug.WriteLine($"Client : connecting to {Config.ServerHost}:{ Config.ServerPort}");
+        
+        _client.Connect(Config.ServerHost, Config.ServerPort, Config.ConnectionKey);
     }
 
     public void Update()
@@ -61,6 +62,6 @@ public class Client
     public void Stop()
     {
         _client.Stop();
-        Debug.WriteLine($"Client stopped");
+        Debug.WriteLine($"Client : stopped");
     }
 }

@@ -1,5 +1,4 @@
 ﻿using TestGame.Network;
-using TestGame.UI;
 
 namespace TestGame.Commands;
 
@@ -14,6 +13,6 @@ public class StartServerCommand : ICommand
     
     public void Execute()
     {
-        _server.Start(11037);
+        _server.Start();
     }
 }

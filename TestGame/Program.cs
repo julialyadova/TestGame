@@ -5,7 +5,7 @@ using TestGame;
 using TestGame.Adapters;
 using TestGame.Commands;
 using TestGame.Core.Entities.Creatures;
-using TestGame.Entities;
+using TestGame.Core.Map;
 using TestGame.Network;
 using TestGame.Tools;
 using TestGame.UI;
@@ -17,6 +17,7 @@ builder.ConfigureServices(
     services =>
     {
         services.AddHostedService<Game1>();
+        
         services.AddScoped<Server>();
         services.AddScoped<Client>();
         services.AddScoped<NetworkSyncService>();

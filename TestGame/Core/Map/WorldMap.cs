@@ -1,35 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Structures;
-using TestGame.Core.Map;
-using TestGame.Core.Tools;
-using TestGame.Tools;
 
-namespace TestGame.Entities;
+namespace TestGame.Core.Map;
 
 public class WorldMap
 {
+    public int Seed;
     public readonly Point Size = new(40, 40);
     public List<Structure>[] Structures;
     public Structure[,] StructuresMap;
     public Surface[,] SurfacesMap;
     public Point Pointer = Point.Zero;
 
-    private Point[] _neighbours = new Point[4] { new Point(-1, 0), new Point(1, 0), new Point(0, 1), new Point(1, 0) };
+    private Point[] _neighbours = new Point[] { new Point(-1, 0), new Point(1, 0), new Point(0, 1), new Point(1, 0) };
 
     public WorldMap()
     {
         Structures = new List<Structure>[Size.Y];
         StructuresMap = new Structure[Size.X,Size.Y];
         SurfacesMap = new Surface[Size.X, Size.Y];
-        Generate();
-    }
-
-    public void Generate()
-    {
-        new MapGenerator().Generate(this);
+        new MapGenerator().Generate(this, Config.MapSeed);
     }
 
     public void Hover(Point position)
@@ -56,22 +48,21 @@ public class WorldMap
         if (position.X + structure.Size.X >= Size.X || position.Y + structure.Size.Y >= Size.Y)
             return;
         
-        for (int mapX = position.X; mapX < position.X + structure.Size.X; mapX++)
-        for (int mapY = position.Y; mapY <  position.Y + structure.Size.Y; mapY++)
+        for (int x = 0; x < structure.Size.X ; x++)
+        for (int y = 0; y < structure.Size.Y; y++)
         {
-            if (StructuresMap[mapX, mapY] != null)
+            if (StructuresMap[position.X + x, position.Y + y] != null)
                 return;
         }
-        
-        if (Structures[ position.Y] == null)
-            Structures[ position.Y] = new List<Structure>();
-        Structures[ position.Y].Add(structure);
 
+        Structures[position.Y] ??= new List<Structure>();
+        Structures[position.Y].Add(structure);
         structure.Position = position;
-        for (int mapX = position.X; mapX < position.X + structure.Size.X; mapX++)
-        for (int mapY =  position.Y; mapY <  position.Y + structure.Size.Y; mapY++)
+        
+        for (int x = 0; x < structure.Size.X ; x++)
+        for (int y = 0; y < structure.Size.Y; y++)
         {
-            StructuresMap[mapX, mapY] = structure;
+            StructuresMap[position.X + x, position.Y + y] = structure;
         }
 
         if (structure is Wall wall)

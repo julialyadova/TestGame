@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using LiteNetLib;
 using Microsoft.Extensions.DependencyInjection;
 using TestGame.Core.Map;
-using TestGame.Entities;
-using TestGame.UI;
 
 namespace TestGame.Network;
 
@@ -24,7 +21,7 @@ public class NetworkSyncService
 
     public int GetMapSeed()
     {
-        return 1234;
+        return _map.Seed;
     }
     
     public void Join(JoinPacket packet)
@@ -36,5 +33,10 @@ public class NetworkSyncService
     {
         new MapGenerator().Generate(_map, packet.MapSeed);
         Debug.WriteLine($"Sync : Server accepted connection. Server player id = {packet.Id}, seed = {packet.MapSeed}");
+    }
+
+    public void SpawnPlayer(SpawnPlayerPacket packet)
+    {
+        
     }
 }

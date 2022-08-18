@@ -13,6 +13,6 @@ public class JoinGameCommand : ICommand
     
     public void Execute()
     {
-        _client.Start(11041);
+        _client.Start();
     }
 }

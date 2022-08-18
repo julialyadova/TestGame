@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Base;
-using TestGame.Entities;
+using TestGame.Core.Map;
 using TestGame.Extensions;
 using TestGame.Tools;
 

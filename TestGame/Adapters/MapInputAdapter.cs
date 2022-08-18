@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
-using TestGame.Entities;
+using TestGame.Core.Map;
 
 namespace TestGame.Adapters;
 

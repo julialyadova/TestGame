@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading;
+﻿using System.Diagnostics;
 using LiteNetLib;
 using LiteNetLib.Utils;
 
@@ -22,7 +20,7 @@ public class Server
         listener.ConnectionRequestEvent += request =>
         {
             if(_server.ConnectedPeersCount < 4 /* max connections */)
-                request.AcceptIfKey("Bat");
+                request.AcceptIfKey(Config.ConnectionKey);
             else
                 request.Reject();
         };
@@ -33,16 +31,16 @@ public class Server
     
     private void OnPeerConnectedEvent(NetPeer peer)
     {
-        Debug.WriteLine("Server - new connection: " + peer.EndPoint);
+        Debug.WriteLine("Server : new connection: " + peer.EndPoint);
 
         _writer.Reset();
         _writer.Put(new JoinAcceptPacket(){Id = 0, MapSeed = _syncService.GetMapSeed()});
         peer.Send(_writer, DeliveryMethod.Unreliable);
     }
 
-    private void OnNetworkReceiveEvent(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliverymethod)
+    private void OnNetworkReceiveEvent(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
     {
-        Debug.WriteLine("Server received packet");
+        Debug.WriteLine("Server : received packet");
         var packetType = (PacketType) reader.GetByte();
         switch (packetType)
         {
@@ -55,10 +53,10 @@ public class Server
         reader.Recycle();
     }
 
-    public void Start(int port)
+    public void Start()
     {
-        _server.Start(port);
-        Debug.WriteLine($"Server is listening on port {port}");
+        _server.Start(Config.ServerPort);
+        Debug.WriteLine($"Server : listening on port {Config.ServerPort}");
     }
 
     public void Update()
@@ -69,5 +67,6 @@ public class Server
     public void Stop()
     {
         _server.Stop();
+        Debug.WriteLine("Server : stopped");
     }
 }
