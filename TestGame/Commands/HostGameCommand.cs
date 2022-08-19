@@ -1,12 +1,13 @@
 ﻿using TestGame.Network;
+using TestGame.UI;
 
 namespace TestGame.Commands;
 
-public class StartServerCommand : ICommand
+public class HostGameCommand : ICommand
 {
     private Server _server;
-    
-    public StartServerCommand(Server server)
+
+    public HostGameCommand(Server server)
     {
         _server = server;
     }

@@ -1,73 +1,74 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using TestGame.Commands;
-using TestGame.Network;
-using Vector2 = System.Numerics.Vector2;
+
 
 namespace TestGame.UI;
 
 public class GameUI
 {
-    private UITexturesRepository _textures;
-    private FontsRepository _fonts;
-    private List<UIElement> _elements;
-    private Vector2 _logTextPosition = new Vector2(10,4);
-    private String _logText = "log";
+    public List<UIElement> Elements = new();
+    private Button _exitButton;
 
     public GameUI(IServiceProvider services)
     {
-        _textures = services.GetRequiredService<UITexturesRepository>();
-        _fonts = services.GetRequiredService<FontsRepository>();
-        _elements = new();
+        var config = services.GetRequiredService<Config>();
         
-        var button = new Button(new Rectangle(10, 24, 60, 60), "Textures/UI/btn_exit");
-        button.SetCommand(services.GetRequiredService<ExitPartyCommand>());
-        Add(button);
+        var button = new Button(UIId.ExitButton);
+        button.Command = services.GetRequiredService<ExitGameCommand>();
+        button.Bounds = new Rectangle(-10, 10, 40, 40);
+        button.SetText("Exit");
+        button.TextColor = Color.Red;
+        button.HorizontalAlignment = HorizontalAlignment.Right;
+        Elements.Add(button);
         
-        button = new Button(new Rectangle(80, 24, 60, 60), "Textures/UI/btn_host");
-        button.SetCommand(services.GetRequiredService<StartServerCommand>());
-        Add(button);
+        var text = new TextBox(UIId.ConnectionStatus);
+        text.Bounds = new Rectangle(10, 10, 100, 30);
+        text.SetText("NotConnected");
+        Elements.Add(text);
         
-        button = new Button(new Rectangle(150, 24, 60, 60), "Textures/UI/btn_join");
-        button.SetCommand(services.GetRequiredService<JoinGameCommand>());
-        Add(button);
+        button = new Button(UIId.HostButton);
+        button.Command = services.GetRequiredService<HostGameCommand>();
+        button.Bounds = new Rectangle(10, 40, 220, 28);
+        button.SetText("Host Game");
+        Elements.Add(button);
         
+        button = new Button(UIId.JoinButton);
+        button.Command = services.GetRequiredService<JoinGameCommand>();
+        button.Bounds = new Rectangle(10, 80, 220, 28);
+        button.SetText($"Join {config.ServerHost}:{config.ServerPort}");
+        Elements.Add(button);
+        
+        button = new Button(UIId.DisconnectButton);
+        button.Command = services.GetRequiredService<DisconnectCommand>();
+        button.Bounds = new Rectangle(10, 120, 220, 28);
+        button.SetText("Disconnect");
+        Elements.Add(button);
+
+        text = new TextBox(UIId.Message);
+        text.Bounds = new Rectangle(0, 10, 0, 0);
+        text.SetText($"Welcome, {config.PlayerName}!");
+        text.Color = Color.White;
+        text.TextAlignment = HorizontalAlignment.Center;
+        text.HorizontalAlignment = HorizontalAlignment.Center;
+        Elements.Add(text);
     }
 
-    public void Log(string message)
+    public T GetElement<T>(UIId id) where T : UIElement
     {
-        _logText = message;
-    }
-
-    public void Add(UIElement element)
-    {
-        _elements.Add(element);
-    }
-
-    public void Draw(SpriteBatch spriteBatch)
-    {
-        foreach (var element in _elements)
-        {
-            spriteBatch.Draw(_textures.GetTexture(element.TextureName), element.Bounds, Color.White);
-        }
-        spriteBatch.DrawString(_fonts.MainFont, _logText, _logTextPosition, Color.Black);
+        return Elements.Find(e => e.Id == id) as T;
     }
 
     public bool CheckClick(Point clickPosition)
     {
-        foreach (var element in _elements)
-        {
-            if (element.Bounds.Contains(clickPosition))
+        foreach (var element in Elements)
+            if (element.Visible && element.ScreenBounds.Contains(clickPosition))
             {
                 element.OnClick(clickPosition);
                 return true;
             }
-        }
 
         return false;
     }

@@ -21,54 +21,62 @@ public class Game1 : Game, IHostedService
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
-    private GameUI _ui;
+    private Config _config;
+    private Server _server;
+    private Client _client;
+    
     private readonly MapTexturesRepository _mapTexturesRepository;
     private readonly FontsRepository _fontsRepository;
     private readonly UITexturesRepository _uiTexturesRepository;
-    private readonly MapToScreenAdapter _screenAdapter;
-    private readonly MapDrawer _mapDrawer;
+    
     private readonly PointerInput _pointerInput;
     private readonly ZoomInput _zoomInput;
     private readonly MoveInput _moveInput;
-
-    private Server _server;
-    private Client _client;
+    
+    private readonly MapDrawer _mapDrawer;
+    private readonly UIDrawer _uiDrawer;
 
     public Game1(IServiceProvider services)
     {
-        _mapTexturesRepository = services.GetRequiredService<MapTexturesRepository>();
-        _fontsRepository = services.GetRequiredService<FontsRepository>();
-        _uiTexturesRepository = services.GetRequiredService<UITexturesRepository>();
-        _screenAdapter = services.GetRequiredService<MapToScreenAdapter>();
-        _mapDrawer = services.GetRequiredService<MapDrawer>();
-        
-        _ui = services.GetRequiredService<GameUI>();
+        _config = services.GetRequiredService<Config>();
         _server = services.GetRequiredService<Server>();
         _client = services.GetRequiredService<Client>();
         
+        _mapTexturesRepository = services.GetRequiredService<MapTexturesRepository>();
+        _uiTexturesRepository = services.GetRequiredService<UITexturesRepository>();
+        _fontsRepository = services.GetRequiredService<FontsRepository>();
+        
+        _mapDrawer = services.GetRequiredService<MapDrawer>();
+        _uiDrawer = services.GetRequiredService<UIDrawer>();
+
+        _pointerInput = services.GetRequiredService<PointerInput>();
+        _zoomInput = services.GetRequiredService<ZoomInput>();
+        _moveInput = services.GetRequiredService<MoveInput>();
+
         var mapInputAdapter = services.GetRequiredService<MapInputAdapter>();
         var uiInputAdapter = services.GetRequiredService<UIInputAdapter>();
         var playerInputAdapter = services.GetRequiredService<PlayerInputAdapter>();
-        
-        _pointerInput = services.GetRequiredService<PointerInput>();
         _pointerInput.AddOnClickListener(uiInputAdapter.Click);
         _pointerInput.AddOnClickListener(mapInputAdapter.Click);
-
-        _zoomInput = services.GetRequiredService<ZoomInput>();
         _zoomInput.AddOnZoomListener(mapInputAdapter.Zoom);
-        
-        _moveInput = services.GetRequiredService<MoveInput>();
         _moveInput.AddOnMoveListener(playerInputAdapter.Move);
 
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+
+        var appLifetime = services.GetRequiredService<IHostApplicationLifetime>();
+        Exiting += (sender, args) => appLifetime.StopApplication();
     }
 
     protected override void Initialize()
     {
-        _screenAdapter.SetCenter(new Point(_graphics.PreferredBackBufferWidth / 2, _graphics.PreferredBackBufferHeight / 2));
-        Debug.WriteLine("Game started");
+        _graphics.PreferredBackBufferWidth = _config.ScreenWidth;
+        _graphics.PreferredBackBufferHeight = _config.ScreenHeight;
+        _graphics.ApplyChanges();
+        
+        _uiDrawer.BakeUI();
+
         base.Initialize();
     }
 
@@ -99,7 +107,7 @@ public class Game1 : Game, IHostedService
         
         _spriteBatch.Begin();
         _mapDrawer.Draw(_spriteBatch);
-        _ui.Draw(_spriteBatch);
+        _uiDrawer.Draw(_spriteBatch);
         _spriteBatch.End();
 
         base.Draw(gameTime);

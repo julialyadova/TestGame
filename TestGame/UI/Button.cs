@@ -1,26 +1,29 @@
 ﻿using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using TestGame.Commands;
 
 namespace TestGame.UI;
 
 public class Button : UIElement
 {
-    private ICommand _command;
-
-    public Button(Rectangle bounds, string texture = null) : base(bounds, texture)
-    {
-    }
+    public string Backgroundtexture;
+    public ICommand Command;
+    public Action Click;
+    public int TextLength { get; protected set; }
+    public string Text { get; protected set; } = "button";
+    public Color TextColor = Color.Black;
     
-    public void SetCommand(ICommand command)
+    public void SetText(string text)
     {
-        _command = command;
+        Text = text ?? "";
+        TextLength = Text.Length;
     }
 
     public override void OnClick(Point clickPosition)
     {
-        _command.Execute();
+        Command?.Execute();
+        Click?.Invoke();
     }
+
+    public Button(UIId id) : base(id) { }
 }

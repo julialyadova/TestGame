@@ -8,6 +8,8 @@ namespace TestGame;
 
 public class Config
 {
+    public int ScreenWidth;
+    public int ScreenHeight;
     public string ServerHost;
     public int ServerPort;
     public int ClientPort;

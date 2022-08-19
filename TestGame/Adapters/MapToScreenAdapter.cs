@@ -10,7 +10,7 @@ public class MapToScreenAdapter
     private const int DefaultTileSize = 64;
     private const int MinTileSize = 32;
     private const int MaxTileSize = 80;
-    
+
     public int TileSize
     {
         get => _tileSize;
@@ -19,6 +19,12 @@ public class MapToScreenAdapter
     private int _tileSize = DefaultTileSize;
     private Point _offset;
     private Point _center;
+    
+    public MapToScreenAdapter(Config config)
+    {
+        _center.X = config.ScreenWidth / 2;
+        _center.Y = config.ScreenHeight / 2;
+    }
 
     public void SetCenter(Point center)
     {

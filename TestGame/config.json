@@ -1,4 +1,6 @@
 ﻿{
+  "ScreenWidth": 1280,
+  "ScreenHeight": 720,
   "ServerHost" : "localhost",
   "ServerPort" : 11037,
   "ClientPort" : 11038,

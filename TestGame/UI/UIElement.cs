@@ -5,14 +5,16 @@ namespace TestGame.UI;
 
 public abstract class UIElement
 {
-    public readonly Rectangle Bounds;
-    public readonly string TextureName;
+    public readonly UIId Id;
+    public bool Visible = true;
+    public Rectangle Bounds;
+    public Rectangle ScreenBounds;
+    public HorizontalAlignment HorizontalAlignment = HorizontalAlignment.Left;
+    public VerticalAlignment VerticalAlignment = VerticalAlignment.Top;
 
-    public UIElement(Rectangle bounds, string texture = null)
+    public UIElement(UIId id)
     {
-        Bounds = bounds;
-        TextureName = texture;
+        Id = id;
     }
-
-    public abstract void OnClick(Point clickPosition);
+    public virtual void OnClick(Point clickPosition) { }
 }
