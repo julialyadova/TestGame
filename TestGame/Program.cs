@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Collections.Generic;
+using System.IO;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TestGame;
 using TestGame.Adapters;
@@ -40,6 +42,8 @@ builder.ConfigureServices(
         services.AddScoped<StartServerCommand>();
         services.AddScoped<JoinGameCommand>();
         services.AddScoped<ExitPartyCommand>();
+
+        services.AddSingleton(Config.FromFile("config.json"));
     });
 
 var host = builder.Build();

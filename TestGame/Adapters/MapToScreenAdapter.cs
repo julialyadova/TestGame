@@ -7,9 +7,9 @@ namespace TestGame.Adapters;
 
 public class MapToScreenAdapter
 {
-    private const int DefaultTileSize = 32;
+    private const int DefaultTileSize = 64;
     private const int MinTileSize = 32;
-    private const int MaxTileSize = 128;
+    private const int MaxTileSize = 80;
     
     public int TileSize
     {

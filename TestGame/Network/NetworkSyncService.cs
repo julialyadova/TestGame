@@ -48,6 +48,7 @@ public class NetworkSyncService
         {
             Id = packet.Id,
             Name = packet.Name,
+            TextureName = packet.Texture,
             Position = new Vector2(packet.X, packet.Y)
         });
     }
@@ -57,6 +58,7 @@ public class NetworkSyncService
         var packet = new SpawnPlayerPacket();
         packet.Id = _userPlayer.Id;
         packet.Name = _userPlayer.Name;
+        packet.Texture = _userPlayer.TextureName;
         packet.X = _userPlayer.Position.X;
         packet.Y = _userPlayer.Position.Y;
         return packet;

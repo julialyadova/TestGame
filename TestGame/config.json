@@ -1,0 +1,10 @@
+﻿{
+  "ServerHost" : "localhost",
+  "ServerPort" : 11037,
+  "ClientPort" : 11038,
+  "ConnectionKey" : "Bat",
+  "MapSeed" : 33446,
+  "PlayerId" : 122,
+  "PlayerName" : "Charly",
+  "PlayerTexture" : "Textures/Creatures/player_female"
+}

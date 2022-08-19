@@ -12,7 +12,9 @@ public class MapTexturesRepository
         "Textures/World/grass",
         "Textures/Structures/wall",
         "Textures/Structures/brick_wall",
-        "Textures/Structures/Trees/tree"
+        "Textures/Structures/Trees/tree",
+        "Textures/Creatures/player_male",
+        "Textures/Creatures/player_female"
     };
     private Dictionary<string, Texture2D> textures = new ();
     private Texture2D _undefinedTexture;

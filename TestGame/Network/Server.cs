@@ -9,18 +9,20 @@ public class Server
     private NetManager _server;
     private NetDataWriter _writer;
     private NetworkSyncService _syncService;
+    private Config _config;
     
-    public Server(NetworkSyncService syncService)
+    public Server(NetworkSyncService syncService, Config config)
     {
         EventBasedNetListener listener = new EventBasedNetListener();
         _server = new NetManager(listener);
         _syncService = syncService;
         _writer = new NetDataWriter();
+        _config = config;
 
         listener.ConnectionRequestEvent += request =>
         {
             if(_server.ConnectedPeersCount < 4 /* max connections */)
-                request.AcceptIfKey(Config.ConnectionKey);
+                request.AcceptIfKey(_config.ConnectionKey);
             else
                 request.Reject();
         };
@@ -64,8 +66,8 @@ public class Server
 
     public void Start()
     {
-        _server.Start(Config.ServerPort);
-        Debug.WriteLine($"Server : listening on port {Config.ServerPort}");
+        _server.Start(_config.ServerPort);
+        Debug.WriteLine($"Server : listening on port {_config.ServerPort}");
     }
 
     public void Update()

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Entities.Structures;
 using TestGame.Core.Map;
+using TestGame.UI;
 
 namespace TestGame.Adapters;
 
@@ -14,6 +15,7 @@ public class MapDrawer
     private WorldMap _map;
     private MapToScreenAdapter _screenAdapter;
     private MapTexturesRepository _textures;
+    private FontsRepository _fonts;
 
     private Rectangle _drawRect = Rectangle.Empty;
     private Rectangle _sourceRect = Rectangle.Empty;
@@ -23,6 +25,7 @@ public class MapDrawer
         _map = services.GetRequiredService<WorldMap>();
         _screenAdapter = services.GetRequiredService<MapToScreenAdapter>();
         _textures = services.GetRequiredService<MapTexturesRepository>();
+        _fonts = services.GetRequiredService<FontsRepository>();
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -92,10 +95,22 @@ public class MapDrawer
 
     private void DrawPlayer(Player player, SpriteBatch spriteBatch)
     {
+        
         var playerSizeOffset = new Vector2(player.Size.X / 2, player.Size.Y);
         _drawRect.Location = _screenAdapter.GetScreenPosition(player.Position - playerSizeOffset).ToPoint();
         _drawRect.Size = (player.Size * _screenAdapter.TileSize).ToPoint();
         spriteBatch.Draw(_textures.GetTexture(player.TextureName), _drawRect, Color.BurlyWood);
+        _drawRect.X += _drawRect.Width / 2;
+        spriteBatch.DrawString(
+            _fonts.MainFont,
+            player.Name, 
+            _drawRect.Location.ToVector2(),
+            Color.White, 
+            0f, 
+            new Vector2(player.Name.Length * 4,16), 
+            new Vector2(1,1),
+            SpriteEffects.None,
+            1);
     }
 
     private void DrawPointer(SpriteBatch spriteBatch)

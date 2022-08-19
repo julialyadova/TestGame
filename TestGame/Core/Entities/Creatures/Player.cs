@@ -8,5 +8,5 @@ public class Player : Entity
     public byte Id;
     public string Name;
     public Vector2 Position;
-    public Vector2 Size = new Vector2(0.8f, 1.8f);
+    public Vector2 Size = new Vector2(1, 2);
 }

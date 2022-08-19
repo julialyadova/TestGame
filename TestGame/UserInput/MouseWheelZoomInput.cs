@@ -13,6 +13,7 @@ public class MouseWheelZoomInput : ZoomInput
         var value = Mouse.GetState().ScrollWheelValue;
         _deltaScrollWheelValue = value - _previousScrollWheelValue;
         _previousScrollWheelValue = value;
-        Zoom(_deltaScrollWheelValue);
+        if (_deltaScrollWheelValue != 0)
+            Zoom(_deltaScrollWheelValue * 2);
     }
 }

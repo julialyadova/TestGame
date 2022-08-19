@@ -1,22 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
+using Json.Net;
 
 namespace TestGame;
 
-public static class Config
+public class Config
 {
-    public static readonly string ServerHost;
-    public static readonly int ServerPort;
-    public static readonly int ClientPort;
-    public static readonly string ConnectionKey;
-    public static readonly int MapSeed;
+    public string ServerHost;
+    public int ServerPort;
+    public int ClientPort;
+    public string ConnectionKey;
+    public int MapSeed;
+    public int PlayerId;
+    public string PlayerName;
+    public string PlayerTexture;
 
-    static Config()
+    public static Config FromFile(string name)
     {
-        ServerHost = ConfigurationManager.AppSettings.Get("ServerHost");
-        ServerPort = int.Parse(ConfigurationManager.AppSettings.Get("ServerPort"));
-        ClientPort = int.Parse(ConfigurationManager.AppSettings.Get("ClientPort"));
-        ConnectionKey = ConfigurationManager.AppSettings.Get("ConnectionKey");
-        MapSeed = int.Parse(ConfigurationManager.AppSettings.Get("MapSeed"));
+        Config config;
+        using (StreamReader reader = new StreamReader("config.json"))
+        {
+            string json = reader.ReadToEnd();
+            config = JsonNet.Deserialize<Config>(json);
+        }
+
+        return config;
     }
 }

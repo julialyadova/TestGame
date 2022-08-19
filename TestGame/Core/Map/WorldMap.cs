@@ -18,13 +18,13 @@ public class WorldMap
 
     private Point[] _neighbours = new Point[] { new Point(-1, 0), new Point(1, 0), new Point(0, 1), new Point(1, 0) };
 
-    public WorldMap()
+    public WorldMap(Config config)
     {
         Players = new List<Player>();
         Structures = new List<Structure>[Size.Y];
         StructuresMap = new Structure[Size.X,Size.Y];
         SurfacesMap = new Surface[Size.X, Size.Y];
-        new MapGenerator().Generate(this, Config.MapSeed);
+        new MapGenerator().Generate(this, config.MapSeed);
     }
 
     public void Hover(Point position)

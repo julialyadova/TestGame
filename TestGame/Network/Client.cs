@@ -10,11 +10,13 @@ public class Client
     private NetPeer _server;
     private NetDataWriter _writer;
     private NetworkSyncService _syncService;
+    private Config _config;
 
-    public Client( NetworkSyncService syncService)
+    public Client(NetworkSyncService syncService, Config config)
     {
         _syncService = syncService;
         _writer = new NetDataWriter();
+        _config = config;
         
         EventBasedNetListener listener = new EventBasedNetListener();
         _client = new NetManager(listener);
@@ -56,11 +58,11 @@ public class Client
 
     public void Start()
     {
-        _client.Start(Config.ClientPort);
-        Debug.WriteLine($"Client : listening on port {Config.ClientPort}");
-        Debug.WriteLine($"Client : connecting to {Config.ServerHost}:{ Config.ServerPort}");
+        _client.Start(_config.ClientPort);
+        Debug.WriteLine($"Client : listening on port {_config.ClientPort}");
+        Debug.WriteLine($"Client : connecting to {_config.ServerHost}:{ _config.ServerPort}");
         
-        _client.Connect(Config.ServerHost, Config.ServerPort, Config.ConnectionKey);
+        _client.Connect(_config.ServerHost, _config.ServerPort, _config.ConnectionKey);
     }
 
     public void Update()

@@ -12,12 +12,17 @@ public class PlayerController
     
     public Player Player;
     private WorldMap _map;
+    private Config _config;
     
     public PlayerController(IServiceProvider services)
     {
         _map = services.GetRequiredService<WorldMap>();
+        _config = services.GetRequiredService<Config>();
+        
         Player = new Player();
-        Player.Id = (byte)new Random().Next(0, 100);
+        Player.Id = _config.PlayerId == 0 ? (byte)new Random().Next(0, 100) : (byte)_config.PlayerId;
+        Player.Name = _config.PlayerName;
+        Player.TextureName = _config.PlayerTexture;
         _map.Players.Add(Player);
     }
 

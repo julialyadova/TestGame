@@ -50,6 +50,7 @@ public struct SpawnPlayerPacket : INetSerializable
 {
     public byte Id;
     public string Name;
+    public string Texture;
     public float X;
     public float Y;
 
@@ -58,6 +59,7 @@ public struct SpawnPlayerPacket : INetSerializable
         writer.Put((byte)PacketType.SpawnPlayer);
         writer.Put(Id);
         writer.Put(Name);
+        writer.Put(Texture);
         writer.Put(X);
         writer.Put(Y);
     }
@@ -66,6 +68,7 @@ public struct SpawnPlayerPacket : INetSerializable
     {
         Id = reader.GetByte();
         Name = reader.GetString();
+        Texture = reader.GetString();
         X = reader.GetFloat();
         Y = reader.GetFloat();
     }
