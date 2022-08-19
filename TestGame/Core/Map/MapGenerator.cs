@@ -22,7 +22,10 @@ public class MapGenerator
             map.SurfacesMap[x, y] = new Grass();
             if (random.Next(0, 10) == 1)
             {
-                map.Build(new Tree(), new Point(x,y));
+                if (random.Next(0, 40) == 1)
+                    map.Build(new HighTree(), new Point(x,y));
+                else
+                    map.Build(new Tree(), new Point(x,y));
             }
         }
     }

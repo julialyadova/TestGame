@@ -13,6 +13,7 @@ public class MapTexturesRepository
         "Textures/Structures/wall",
         "Textures/Structures/brick_wall",
         "Textures/Structures/Trees/tree",
+        "Textures/Structures/Trees/high_tree",
         "Textures/Creatures/player_male",
         "Textures/Creatures/player_female"
     };
