@@ -1,0 +1,15 @@
+﻿<Project>
+  <Grid ColumnSpacing="8" RowSpacing="8" >
+    <Grid.ColumnsProportions>
+      <Proportion Type="Part" Value="1" />
+      <Proportion Type="Part" Value="7" />
+      <Proportion Type="Part" Value="2" />
+    </Grid.ColumnsProportions>
+    <Grid.RowsProportions>
+      <Proportion/>
+    </Grid.RowsProportions>
+
+    <TextButton Id="settings" Text="Settings" Width="100" Left="10" Top="10" HorizontalAlignment="Left" GridRow="0" GridColumn="0" />
+    
+  </Grid>
+</Project>

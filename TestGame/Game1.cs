@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Myra;
+using Myra.Graphics2D.UI;
 using TestGame.Adapters;
 using TestGame.Commands;
 using TestGame.Core.Entities.Creatures;
@@ -18,12 +20,14 @@ namespace TestGame;
 
 public class Game1 : Game, IHostedService
 {
+
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
     private Config _config;
     private Server _server;
     private Client _client;
+    private GameUI _gameUi;
     
     private readonly MapTexturesRepository _mapTexturesRepository;
     private readonly FontsRepository _fontsRepository;
@@ -34,29 +38,26 @@ public class Game1 : Game, IHostedService
     private readonly MoveInput _moveInput;
     
     private readonly MapDrawer _mapDrawer;
-    private readonly UIDrawer _uiDrawer;
 
     public Game1(IServiceProvider services)
     {
         _config = services.GetRequiredService<Config>();
         _server = services.GetRequiredService<Server>();
         _client = services.GetRequiredService<Client>();
+        _gameUi = services.GetRequiredService<GameUI>();
         
         _mapTexturesRepository = services.GetRequiredService<MapTexturesRepository>();
         _uiTexturesRepository = services.GetRequiredService<UITexturesRepository>();
         _fontsRepository = services.GetRequiredService<FontsRepository>();
         
         _mapDrawer = services.GetRequiredService<MapDrawer>();
-        _uiDrawer = services.GetRequiredService<UIDrawer>();
 
         _pointerInput = services.GetRequiredService<PointerInput>();
         _zoomInput = services.GetRequiredService<ZoomInput>();
         _moveInput = services.GetRequiredService<MoveInput>();
 
         var mapInputAdapter = services.GetRequiredService<MapInputAdapter>();
-        var uiInputAdapter = services.GetRequiredService<UIInputAdapter>();
         var playerInputAdapter = services.GetRequiredService<PlayerInputAdapter>();
-        _pointerInput.AddOnClickListener(uiInputAdapter.Click);
         _pointerInput.AddOnClickListener(mapInputAdapter.Click);
         _zoomInput.AddOnZoomListener(mapInputAdapter.Zoom);
         _moveInput.AddOnMoveListener(playerInputAdapter.Move);
@@ -75,13 +76,13 @@ public class Game1 : Game, IHostedService
         _graphics.PreferredBackBufferHeight = _config.ScreenHeight;
         _graphics.ApplyChanges();
         
-        _uiDrawer.BakeUI();
-
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
+        _gameUi.LoadContent(this);
+        
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         
         _uiTexturesRepository.LoadContent(GraphicsDevice, Content);
@@ -107,8 +108,10 @@ public class Game1 : Game, IHostedService
         
         _spriteBatch.Begin();
         _mapDrawer.Draw(_spriteBatch);
-        _uiDrawer.Draw(_spriteBatch);
         _spriteBatch.End();
+        
+        _gameUi.Draw();
+
 
         base.Draw(gameTime);
     }

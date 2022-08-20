@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+    <Dialog Title="Join game">
+        <HorizontalStackPanel Spacing="8">
+            <HorizontalStackPanel.Proportions>
+                <Proportion Type="Auto" />
+                <Proportion Type="Fill" />
+            </HorizontalStackPanel.Proportions>
+            <Label Text="Name:" />
+            <TextBox />
+        </HorizontalStackPanel>
+    </Dialog>
+</Project>

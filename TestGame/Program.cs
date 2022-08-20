@@ -23,7 +23,6 @@ builder.ConfigureServices(
         services.AddScoped<NetworkSyncService>();
 
         services.AddScoped<GameUI>();
-        services.AddScoped<UIDrawer>();
 
         services.AddScoped<WorldMap>();
         services.AddScoped<PlayerController>();
@@ -37,8 +36,7 @@ builder.ConfigureServices(
         services.AddScoped<MoveInput, WASDMoveInput>();
         services.AddScoped<ZoomInput, MouseWheelZoomInput>();
         services.AddScoped<PointerInput, MousePointerInput>();
-
-        services.AddScoped<UIInputAdapter>();
+        
         services.AddScoped<MapInputAdapter>();
         services.AddScoped<PlayerInputAdapter>();
 
