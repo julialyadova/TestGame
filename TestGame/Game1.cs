@@ -8,10 +8,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Myra;
-using Myra.Graphics2D.UI;
 using TestGame.Adapters;
-using TestGame.Commands;
-using TestGame.Core.Entities.Creatures;
+using TestGame.Core.Map;
 using TestGame.Network;
 using TestGame.UI;
 using TestGame.UserInput;
@@ -24,6 +22,7 @@ public class Game1 : Game, IHostedService
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
+    private WorldMap _map;
     private Config _config;
     private Server _server;
     private Client _client;
@@ -45,6 +44,7 @@ public class Game1 : Game, IHostedService
         _server = services.GetRequiredService<Server>();
         _client = services.GetRequiredService<Client>();
         _gameUi = services.GetRequiredService<GameUI>();
+        _map = services.GetRequiredService<WorldMap>();
         
         _mapTexturesRepository = services.GetRequiredService<MapTexturesRepository>();
         _uiTexturesRepository = services.GetRequiredService<UITexturesRepository>();
@@ -75,13 +75,14 @@ public class Game1 : Game, IHostedService
         _graphics.PreferredBackBufferWidth = _config.ScreenWidth;
         _graphics.PreferredBackBufferHeight = _config.ScreenHeight;
         _graphics.ApplyChanges();
-        
+
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
-        _gameUi.LoadContent(this);
+        MyraEnvironment.Game = this;
+        _gameUi.LoadContent();
         
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         
@@ -92,13 +93,17 @@ public class Game1 : Game, IHostedService
 
     protected override void Update(GameTime gameTime)
     {
+
         _pointerInput.Update(gameTime);
         _zoomInput.Update(gameTime);
         _moveInput.Update(gameTime);
-
-        _server.Update();
-        _client.Update();
         
+        _map.Update((float) gameTime.ElapsedGameTime.TotalSeconds);
+
+        _client.Update();
+        _server.Update();
+        
+
         base.Update(gameTime);
     }
 
@@ -123,6 +128,8 @@ public class Game1 : Game, IHostedService
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
+        _client.Disconnect();
+        _server.Stop();
         return Task.Run(Exit, cancellationToken);
     }
 }

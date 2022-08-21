@@ -30,9 +30,11 @@ public class MapDrawer
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        DrawSurfaces(spriteBatch);
-        DrawStructures(spriteBatch);
-        //DrawPointer(spriteBatch);
+        if (_map.Loaded)
+        {
+            DrawSurfaces(spriteBatch);
+            DrawStructures(spriteBatch);
+        }
     }
 
     void DrawSurfaces(SpriteBatch spriteBatch)

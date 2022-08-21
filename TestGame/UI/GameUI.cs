@@ -1,28 +1,66 @@
 ﻿using System;
 using System.IO;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Myra;
 using Myra.Graphics2D.UI;
+using TestGame.Commands;
 
 
 namespace TestGame.UI;
 
 public class GameUI
 {
+    private Config _config;
+    private IServiceProvider _services;
     private Desktop _desktop;
-    private Project _project;
-    private Project _joinGameDialog;
+    private Project _mainLayout;
+    private TextButton _menuButton;
+    
+    private Window _menuWindow;
+    private TextButton _exitButton;
+    private TextButton _hostButton;
+    private TextButton _joinButton;
+    private TextButton _leaveButton;
+    private Label _log;
 
-    public void LoadContent(Game game)
+    public GameUI(IServiceProvider services)
     {
-        MyraEnvironment.Game = game;
+        _services = services;
+        _config = services.GetRequiredService<Config>();
+    }
+    public void LoadContent()
+    {
         LoadProject();
         _desktop = new Desktop();
-        _desktop.Root = _project.Root;
-        var settings = _desktop.Root.FindWidgetById("settings") as TextButton;
-        settings.Click += (sender, args) =>
+        _desktop.Root = _mainLayout.Root;
+
+        _menuButton.Click += (s, a) => _menuWindow.ShowModal(_desktop);
+        _exitButton.Click += (s, a) => _services.GetRequiredService<ExitGameCommand>().Execute();
+        _hostButton.Text = $"Host game on port {_config.ServerPort}";
+        _hostButton.Click += (s, a) =>
         {
-            (_joinGameDialog.Root as Dialog).ShowModal(_desktop);
+            _services.GetRequiredService<HostGameCommand>().Execute();
+            _hostButton.Enabled = false;
+            _joinButton.Enabled = false;
+            _leaveButton.Text = "Stop server and leave map";
+            _leaveButton.Visible = true;
+        };
+        _joinButton.Text = $"Join server {_config.ServerHost}:{_config.ServerPort}";
+        _joinButton.Click += (s, a) =>
+        {
+            _services.GetRequiredService<JoinGameCommand>().Execute();
+            _hostButton.Enabled = false;
+            _joinButton.Enabled = false;
+            _leaveButton.Text = "Leave server";
+            _leaveButton.Visible = true;
+        };
+        _leaveButton.Click += (s, a) =>
+        {
+            _services.GetRequiredService<DisconnectCommand>().Execute();
+            _leaveButton.Visible = false;
+            _joinButton.Enabled = true;
+            _hostButton.Enabled = true;
         };
     }
 
@@ -31,13 +69,29 @@ public class GameUI
         using (StreamReader reader = new StreamReader("Content/Layouts/layout.xmmp"))
         {
             string data = reader.ReadToEnd();
-            _project = Project.LoadFromXml(data);
+            _mainLayout = Project.LoadFromXml(data);
         }
+        _menuButton = _mainLayout.Root.FindWidgetById("menu") as TextButton;
+        _log = _mainLayout.Root.FindWidgetById("log") as Label;
+
+        Project menu;
         using (StreamReader reader = new StreamReader("Content/Layouts/menu.xmmp"))
         {
             string data = reader.ReadToEnd();
-            _joinGameDialog = Project.LoadFromXml(data);
+            menu = Project.LoadFromXml(data);
+           
         }
+        _menuWindow = menu.Root as Window;
+        _exitButton = menu.Root.FindWidgetById("exit") as TextButton;
+        _hostButton = menu.Root.FindWidgetById("host") as TextButton;
+        _joinButton = menu.Root.FindWidgetById("join") as TextButton;
+        _leaveButton = menu.Root.FindWidgetById("leave") as TextButton;
+    }
+
+    public void ShowMessage(string message)
+    {
+        if (_log != null) 
+            _log.Text = message;
     }
     
     public void Draw()

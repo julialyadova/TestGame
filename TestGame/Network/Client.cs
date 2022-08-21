@@ -1,6 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using Microsoft.Extensions.DependencyInjection;
+using TestGame.Commands;
+using TestGame.Network.Packets;
 
 namespace TestGame.Network;
 
@@ -9,77 +13,114 @@ public class Client
     private NetManager _client;
     private NetPeer _server;
     private NetDataWriter _writer;
-    private NetworkSyncService _syncService;
+    private ClientPacketManager _packetManager;
     private Config _config;
 
-    public Client(NetworkSyncService syncService, Config config)
+    public Client(IServiceProvider services)
     {
-        _syncService = syncService;
+        _packetManager = services.GetRequiredService<ClientPacketManager>();
+        _config = services.GetRequiredService<Config>();
+        
         _writer = new NetDataWriter();
-        _config = config;
-        
-        EventBasedNetListener listener = new EventBasedNetListener();
+        var listener = new EventBasedNetListener();
         _client = new NetManager(listener);
-        listener.NetworkReceiveEvent += OnNetworkReceiveEvent;
         listener.PeerConnectedEvent += OnPeerConnectedEvent;
+        listener.NetworkReceiveEvent += OnNetworkReceiveEvent;
+        listener.PeerDisconnectedEvent += OnPeerDisconnectedEvent;
     }
 
-    private void OnPeerConnectedEvent(NetPeer peer)
+    public void Connect(string host, int port, string key, string username)
     {
-        Debug.WriteLine("Client : connected to server: " + peer.EndPoint);
-        _server = peer;
-        _writer.Reset();
-        _writer.Put(new JoinPacket() {Id = 1});
-        _server.Send(_writer, DeliveryMethod.Unreliable);
-    }
-
-    private void OnNetworkReceiveEvent(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
-    {
-        var packetType = (PacketType) reader.GetByte();
-        switch (packetType)
-        {
-            case PacketType.Join:
-                break;
-            case PacketType.JoinAccept:
-                _syncService.AcceptJoin(reader.Get<JoinAcceptPacket>());
-                _writer.Reset();
-                _writer.Put(_syncService.GetPlayerData());
-                _server.Send(_writer, DeliveryMethod.Unreliable);
-                break;
-            case PacketType.SpawnPlayer:
-                _syncService.SpawnPlayer(reader.Get<SpawnPlayerPacket>());
-                break;
-            case PacketType.SyncPlayer:
-                _syncService.SyncPlayer(reader.Get<SyncPlayerPacket>());
-                break;;
-        }
-        reader.Recycle();
-    }
-
-    public void Start()
-    {
+        Debug.WriteLine($"Client : connecting to server {host}:{port} as {username}");
+        _packetManager.UseUsername(username);
         _client.Start(_config.ClientPort);
-        Debug.WriteLine($"Client : listening on port {_config.ClientPort}");
-        Debug.WriteLine($"Client : connecting to {_config.ServerHost}:{ _config.ServerPort}");
-        
-        _client.Connect(_config.ServerHost, _config.ServerPort, _config.ConnectionKey);
+        _client.Connect(host, port, key);
     }
 
     public void Update()
     {
         _client.PollEvents();
 
-        if (_server != null)
+        if (_packetManager.PlayerConnected)
         {
             _writer.Reset();
-            _writer.Put(_syncService.GetPlayerState());
+            _writer.Put(_packetManager.GetSyncPlayerPacket());
             _server.Send(_writer, DeliveryMethod.Unreliable);
         }
     }
 
-    public void Stop()
+    public void Disconnect()
     {
         _client.Stop();
-        Debug.WriteLine($"Client : stopped");
+        Debug.WriteLine($"Client : disconnected");
+    }
+
+    private void OnPeerConnectedEvent(NetPeer peer)
+    {
+        Debug.WriteLine($"Client : connected to server {peer.EndPoint}");
+        _server = peer;
+        
+        Debug.WriteLine($"Client : sending join request");
+        _writer.Reset();
+        _writer.Put(_packetManager.GetJoinRequestPacket());
+        _server.Send(_writer, DeliveryMethod.ReliableOrdered);
+    }
+
+    private void OnNetworkReceiveEvent(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
+    {
+        var packetType = (PacketType) reader.PeekByte();
+        switch (packetType)
+        {
+            case PacketType.JoinAccepted:
+                OnJoinAcceptedPacketReceived(reader.Get<JoinAcceptedPacket>());
+                break;
+            case PacketType.JoinRejected:
+                OnJoinRejectedPacketReceived(reader.Get<JoinRejectedPacket>());
+                break;
+            case PacketType.SpawnPlayer:
+                OnSpawnPlayerPacketReceived(reader.Get<SpawnPlayerPacket>());
+                break;
+            case PacketType.SyncPlayer:
+                OnSyncPlayerPacketReceived(reader.Get<SyncPlayerPacket>());
+                break;
+            case PacketType.PlayerDisconnected:
+                OnPlayerDisconnectedPacketReceived(reader.Get<PlayerDisconnectedPacket>());
+                break;
+        }
+        reader.Recycle();
+    }
+
+    public void OnJoinAcceptedPacketReceived(JoinAcceptedPacket packet)
+    {
+        _packetManager.OnJoinAccepted(packet);
+        
+        Debug.WriteLine("Client : sending join packet with player data");
+        _writer.Reset();
+        _writer.Put(_packetManager.GetJoinPacket());
+        _server.Send(_writer, DeliveryMethod.Unreliable);
+    }
+
+    public void OnJoinRejectedPacketReceived(JoinRejectedPacket packet)
+    {
+        _packetManager.OnJoinRejected(packet);
+    }
+
+    public void OnSpawnPlayerPacketReceived(SpawnPlayerPacket packet)
+    {
+        _packetManager.SpawnPlayer(packet);
+    }
+
+    public void OnSyncPlayerPacketReceived(SyncPlayerPacket packet)
+    {
+        _packetManager.SyncPlayer(packet);
+    }
+    
+    private void OnPeerDisconnectedEvent(NetPeer peer, DisconnectInfo disconnectinfo)
+    {
+        _packetManager.Disconnect();
+    }
+    private void OnPlayerDisconnectedPacketReceived(PlayerDisconnectedPacket packet)
+    {
+        _packetManager.OnPlayerDiconnected(packet);
     }
 }

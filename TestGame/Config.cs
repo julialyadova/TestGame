@@ -14,9 +14,10 @@ public class Config
     public int ServerPort;
     public int ClientPort;
     public string ConnectionKey;
+    public int MaxConnections;
     public int MapSeed;
     public int PlayerId;
-    public string PlayerName;
+    public string Username;
     public string PlayerTexture;
 
     public static Config FromFile(string name)

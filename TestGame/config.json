@@ -1,12 +1,13 @@
 ﻿{
-  "ScreenWidth": 1280,
-  "ScreenHeight": 720,
+  "ScreenWidth": 800,
+  "ScreenHeight": 600,
   "ServerHost" : "localhost",
   "ServerPort" : 11037,
   "ClientPort" : 11038,
   "ConnectionKey" : "Bat",
+  "MaxConnections" : 4,
   "MapSeed" : 33446,
   "PlayerId" : 122,
-  "PlayerName" : "Charly",
+  "Username" : "Charly",
   "PlayerTexture" : "Textures/Creatures/player_female"
 }

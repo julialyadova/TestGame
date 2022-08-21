@@ -1,16 +1,21 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Entities.Structures;
+using TestGame.Core.Players;
 
 namespace TestGame.Core.Map;
 
 public class WorldMap
 {
+    public bool Loaded;
     public int Seed;
+    public Point SpawnPoint = Point.Zero;
     public readonly Point Size = new(40, 40);
-    public List<Player> Players;
+    public GamePlayers Players;
     public List<Structure>[] Structures;
     public Structure[,] StructuresMap;
     public Surface[,] SurfacesMap;
@@ -20,11 +25,33 @@ public class WorldMap
 
     public WorldMap(Config config)
     {
-        Players = new List<Player>();
+        Players = new GamePlayers();
         Structures = new List<Structure>[Size.Y];
         StructuresMap = new Structure[Size.X,Size.Y];
         SurfacesMap = new Surface[Size.X, Size.Y];
-        new MapGenerator().Generate(this, config.MapSeed);
+    }
+
+    public void Load(int seed)
+    {
+        Loaded = false;
+        Players.Clear();
+        new MapGenerator().Generate(this, seed);
+        Loaded = true;
+    }
+    
+    public void UnLoad()
+    {
+        Loaded = false;
+    }
+
+    public void Update(float deltaTime)
+    {
+        foreach (var player in Players)
+        {
+            var newPosition = player.Position + player.Direction * Player.MoveSpeed * deltaTime;
+            if (TileIsEmpty(newPosition.ToPoint()))
+                player.Position = newPosition;   
+        }
     }
 
     public void Hover(Point position)

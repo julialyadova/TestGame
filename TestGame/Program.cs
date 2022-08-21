@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TestGame;
 using TestGame.Adapters;
@@ -20,7 +17,8 @@ builder.ConfigureServices(
 
         services.AddScoped<Server>();
         services.AddScoped<Client>();
-        services.AddScoped<NetworkSyncService>();
+        services.AddScoped<ServerPacketManager>();
+        services.AddScoped<ClientPacketManager>();
 
         services.AddScoped<GameUI>();
 
@@ -44,6 +42,7 @@ builder.ConfigureServices(
         services.AddScoped<JoinGameCommand>();
         services.AddScoped<DisconnectCommand>();
         services.AddScoped<ExitGameCommand>();
+        services.AddScoped<LogCommand>();
 
         services.AddSingleton(Config.FromFile("config.json"));
     });
