@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -20,6 +21,7 @@ public class WorldMap
     public Structure[,] StructuresMap;
     public Surface[,] SurfacesMap;
     public Point Pointer = Point.Zero;
+    public Action<Structure> OnStructureRemoved;
 
     private Point[] _neighbours = new Point[] { new Point(-1, 0), new Point(1, 0), new Point(0, 1), new Point(1, 0) };
 
@@ -46,12 +48,6 @@ public class WorldMap
 
     public void Update(float deltaTime)
     {
-        foreach (var player in Players)
-        {
-            var newPosition = player.Position + player.Direction * Player.MoveSpeed * deltaTime;
-            if (TileIsEmpty(newPosition.ToPoint()))
-                player.Position = newPosition;   
-        }
     }
 
     public void Hover(Point position)
@@ -99,6 +95,29 @@ public class WorldMap
         {
             ConnectNeighbourWalls(wall);
         }
+    }
+
+    public void RemoveStructure(int x, int y)
+    {
+        Remove(StructuresMap[x,y]);
+    }
+
+    public void Remove(Structure structure)
+    {
+        if (structure == null)
+        {
+            Debug.WriteLine("Game: Attempt to remove null structure");
+            return;
+        }
+        
+        Structures[structure.Position.Y].Remove(structure);
+        for (int x = 0; x < structure.Size.X ; x++)
+        for (int y = 0; y < structure.Size.Y; y++)
+        {
+            StructuresMap[structure.Position.X + x, structure.Position.Y + y] = null;
+        }
+        
+        OnStructureRemoved?.Invoke(structure);
     }
 
     private void ConnectNeighbourWalls(Wall wall)

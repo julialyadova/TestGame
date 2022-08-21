@@ -81,7 +81,10 @@ public class Server
                 OnJoinPacketReceived(peer, reader.Get<JoinPacket>());
                 break;
             case PacketType.SyncPlayer:
-                OnSyncPacketReceived(reader.Get<SyncPlayerPacket>());
+                SendPacketToOtherPlayers(peer,reader.Get<SyncPlayerPacket>(), DeliveryMethod.Unreliable);
+                break;
+            case PacketType.StructureRemoved:
+                SendPacketToOtherPlayers(peer, reader.Get<StructureRemovedPacket>(), DeliveryMethod.ReliableUnordered);
                 break;
         }
         reader.Recycle();
@@ -116,11 +119,10 @@ public class Server
         _server.SendToAll(_writer, DeliveryMethod.ReliableOrdered);
     }
 
-    private void OnSyncPacketReceived(SyncPlayerPacket packet)
+    private void SendPacketToOtherPlayers(NetPeer sender, INetSerializable packet, DeliveryMethod deliveryMethod)
     {
-        Debug.WriteLine($"sync {packet.PlayerId} ({packet.X}; {packet.Y})");
         _writer.Reset();
         _writer.Put(packet);
-        _server.SendToAll(_writer, DeliveryMethod.Unreliable);
+        _server.SendToAll(_writer, deliveryMethod, sender);
     }
 }

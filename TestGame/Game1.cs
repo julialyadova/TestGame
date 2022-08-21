@@ -35,6 +35,7 @@ public class Game1 : Game, IHostedService
     private readonly PointerInput _pointerInput;
     private readonly ZoomInput _zoomInput;
     private readonly MoveInput _moveInput;
+    private readonly ControlsInput _controlsInput;
     
     private readonly MapDrawer _mapDrawer;
 
@@ -52,16 +53,21 @@ public class Game1 : Game, IHostedService
         
         _mapDrawer = services.GetRequiredService<MapDrawer>();
 
+        //subscribe to inputs
         _pointerInput = services.GetRequiredService<PointerInput>();
         _zoomInput = services.GetRequiredService<ZoomInput>();
         _moveInput = services.GetRequiredService<MoveInput>();
+        _controlsInput = services.GetRequiredService<ControlsInput>();
 
         var mapInputAdapter = services.GetRequiredService<MapInputAdapter>();
-        var playerInputAdapter = services.GetRequiredService<PlayerInputAdapter>();
         _pointerInput.AddOnClickListener(mapInputAdapter.Click);
         _zoomInput.AddOnZoomListener(mapInputAdapter.Zoom);
+        
+        var playerInputAdapter = services.GetRequiredService<PlayerInputAdapter>();
         _moveInput.AddOnMoveListener(playerInputAdapter.Move);
+        _controlsInput.AddOnControlPressedListener(playerInputAdapter.OnControlPressed);
 
+        
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -97,6 +103,7 @@ public class Game1 : Game, IHostedService
         _pointerInput.Update(gameTime);
         _zoomInput.Update(gameTime);
         _moveInput.Update(gameTime);
+        _controlsInput.Update(gameTime);
         
         _map.Update((float) gameTime.ElapsedGameTime.TotalSeconds);
 

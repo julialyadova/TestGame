@@ -27,6 +27,7 @@ public class Client
         listener.PeerConnectedEvent += OnPeerConnectedEvent;
         listener.NetworkReceiveEvent += OnNetworkReceiveEvent;
         listener.PeerDisconnectedEvent += OnPeerDisconnectedEvent;
+        _packetManager.OnSyncRequired += SendSyncPacketReliable;
     }
 
     public void Connect(string host, int port, string key, string username)
@@ -86,6 +87,9 @@ public class Client
             case PacketType.PlayerDisconnected:
                 OnPlayerDisconnectedPacketReceived(reader.Get<PlayerDisconnectedPacket>());
                 break;
+            case PacketType.StructureRemoved:
+                OnStructureRemovedPacketReceived(reader.Get<StructureRemovedPacket>());
+                break;
         }
         reader.Recycle();
     }
@@ -115,6 +119,11 @@ public class Client
         _packetManager.SyncPlayer(packet);
     }
     
+    private void OnStructureRemovedPacketReceived(StructureRemovedPacket packet)
+    {
+        _packetManager.OnStructureRemoved(packet);
+    }
+    
     private void OnPeerDisconnectedEvent(NetPeer peer, DisconnectInfo disconnectinfo)
     {
         _packetManager.Disconnect();
@@ -122,5 +131,12 @@ public class Client
     private void OnPlayerDisconnectedPacketReceived(PlayerDisconnectedPacket packet)
     {
         _packetManager.OnPlayerDiconnected(packet);
+    }
+
+    private void SendSyncPacketReliable(INetSerializable packet)
+    {
+        _writer.Reset();
+        _writer.Put(packet);
+        _server.Send(_writer, DeliveryMethod.ReliableUnordered);
     }
 }

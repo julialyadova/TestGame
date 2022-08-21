@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using TestGame.Core.Map;
+using TestGame.UserInput;
 
 namespace TestGame.Adapters;
 
@@ -9,8 +10,8 @@ public class MapInputAdapter
 {
     private const int ZoomSpeedDivider = 50;
 
-    private MapToScreenAdapter _screenAdapter;
-    private WorldMap _map;
+    private readonly MapToScreenAdapter _screenAdapter;
+    private readonly WorldMap _map;
 
     public MapInputAdapter(IServiceProvider services)
     {

@@ -2,13 +2,15 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using TestGame.Core.Map;
+using TestGame.UserInput;
 
 namespace TestGame.Adapters;
 
 public class PlayerInputAdapter
 {
-    private PlayerController _playerController;
-    private MapToScreenAdapter _screenAdapter;
+    private const int PlayerSpeed = 5;
+    private readonly PlayerController _playerController;
+    private readonly MapToScreenAdapter _screenAdapter;
 
     public PlayerInputAdapter(IServiceProvider services)
     {
@@ -18,7 +20,13 @@ public class PlayerInputAdapter
 
     public void Move(Vector2 direction, GameTime gameTime)
     {
-        _playerController.Move(direction);
+        _playerController.Move(direction, (float)gameTime.ElapsedGameTime.TotalSeconds);
         _screenAdapter.SetMapOffset(-_playerController.Player.Position);
+    }
+    
+    public void OnControlPressed(GameControl control)
+    {
+        if (control == GameControl.Interact)
+            _playerController.Interact();
     }
 }

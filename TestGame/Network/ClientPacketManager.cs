@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+using LiteNetLib.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using TestGame.Adapters;
 using TestGame.Commands;
+using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Map;
 using TestGame.Network.Packets;
@@ -13,7 +15,8 @@ namespace TestGame.Network;
 public class ClientPacketManager
 {
     public bool PlayerConnected => _connected;
-    private Config _config;
+    public Action<INetSerializable> OnSyncRequired;
+    
     private WorldMap _map;
     private Player _userPlayer;
     private LogCommand _logCommand;
@@ -22,17 +25,18 @@ public class ClientPacketManager
     
     public ClientPacketManager(IServiceProvider services)
     {
-        _config = services.GetRequiredService<Config>();
         _map = services.GetRequiredService<WorldMap>();
         _userPlayer = services.GetRequiredService<PlayerController>().Player;
         _logCommand = services.GetRequiredService<LogCommand>();
+        
+        _map.OnStructureRemoved += structure => RequireSync(GetStructureRemovedPacket(structure));
     }
 
     public void UseUsername(string username)
     {
         _userPlayer.Name = username;
     }
-
+    
     public JoinRequestPacket GetJoinRequestPacket()
     {
         return new JoinRequestPacket()
@@ -123,5 +127,26 @@ public class ClientPacketManager
         {
             _map.Players.RemovePlayer(packet.PlayerId);
         }
+    }
+
+    public void OnStructureRemoved(StructureRemovedPacket packet)
+    {
+        _map.RemoveStructure(packet.X, packet.Y);
+    }
+    
+    private void RequireSync(INetSerializable packet)
+    {
+        if (_connected && OnSyncRequired != null)
+            OnSyncRequired(packet);
+    }
+
+
+    private StructureRemovedPacket GetStructureRemovedPacket(Structure structure)
+    {
+        return new StructureRemovedPacket()
+        {
+            X = structure.Position.X,
+            Y = structure.Position.Y
+        };
     }
 }

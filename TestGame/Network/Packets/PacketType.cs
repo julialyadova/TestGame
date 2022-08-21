@@ -8,5 +8,6 @@
     Join,
     SpawnPlayer,
     SyncPlayer,
-    PlayerDisconnected
+    PlayerDisconnected,
+    StructureRemoved
 }
