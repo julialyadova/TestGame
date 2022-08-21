@@ -7,6 +7,7 @@ using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Entities.Structures;
 using TestGame.Core.Players;
+using TestGame.Extensions;
 
 namespace TestGame.Core.Map;
 
@@ -14,29 +15,33 @@ public class WorldMap
 {
     public bool Loaded;
     public int Seed;
-    public Point SpawnPoint = Point.Zero;
-    public readonly Point Size = new(4000, 4000);
+    public readonly Point Size = new(100, 100);
+    public Point SpawnPoint;
     public GamePlayers Players;
     public List<Structure>[] Structures;
-    public Structure[,] StructuresMap;
     public Surface[,] SurfacesMap;
     public Point Pointer = Point.Zero;
     public Action<Structure> OnStructureRemoved;
 
+    private Structure[,] _structuresMap;
     private Point[] _neighbours = new Point[] { new Point(-1, 0), new Point(1, 0), new Point(0, 1), new Point(1, 0) };
 
     public WorldMap(Config config)
     {
         Players = new GamePlayers();
         Structures = new List<Structure>[Size.Y];
-        StructuresMap = new Structure[Size.X,Size.Y];
+        _structuresMap = new Structure[Size.X,Size.Y];
         SurfacesMap = new Surface[Size.X, Size.Y];
+        SpawnPoint = Size.Divide(2);
     }
 
     public void Load(int seed)
     {
         Loaded = false;
         Players.Clear();
+        Structures = new List<Structure>[Size.Y];
+        _structuresMap = new Structure[Size.X,Size.Y];
+        SurfacesMap = new Surface[Size.X, Size.Y];
         new MapGenerator().Generate(this, seed);
         Loaded = true;
     }
@@ -61,12 +66,12 @@ public class WorldMap
         //Build(new Tree(), position);
     }
 
-    public bool TileIsEmpty(Point position)
+    public bool CanWalkTrough(Point position)
     {
-        if (position.X < 0 || position.X >= Size.X || position.Y < 0 || position.Y >= Size.Y)
+        if (position.X <= 0 || position.X >= Size.X || position.Y <= 0 || position.Y >= Size.Y)
             return false;
         
-        return StructuresMap[position.X, position.Y] == null;
+        return _structuresMap[position.X, position.Y] == null || _structuresMap[position.X, position.Y].CanWalkThrough;
     }
 
     public void Build(Structure structure, Point position)
@@ -77,29 +82,36 @@ public class WorldMap
         for (int x = 0; x < structure.Size.X ; x++)
         for (int y = 0; y < structure.Size.Y; y++)
         {
-            if (StructuresMap[position.X + x, position.Y + y] != null)
+            if (_structuresMap[position.X + x, position.Y + y] != null )
                 return;
         }
 
         Structures[position.Y] ??= new List<Structure>();
         Structures[position.Y].Add(structure);
         structure.Position = position;
-        
+
+
         for (int x = 0; x < structure.Size.X ; x++)
         for (int y = 0; y < structure.Size.Y; y++)
         {
-            StructuresMap[position.X + x, position.Y + y] = structure;
+            _structuresMap[position.X + x, position.Y + y] = structure;
         }
 
         if (structure is Wall wall)
         {
             ConnectNeighbourWalls(wall);
         }
+        
+    }
+
+    public Structure GetStructureAt(Point position)
+    {
+        return _structuresMap[position.X, position.Y];
     }
 
     public void RemoveStructure(int x, int y)
     {
-        Remove(StructuresMap[x,y]);
+        Remove(_structuresMap[x,y]);
     }
 
     public void Remove(Structure structure)
@@ -114,7 +126,7 @@ public class WorldMap
         for (int x = 0; x < structure.Size.X ; x++)
         for (int y = 0; y < structure.Size.Y; y++)
         {
-            StructuresMap[structure.Position.X + x, structure.Position.Y + y] = null;
+            _structuresMap[structure.Position.X + x, structure.Position.Y + y] = null;
         }
         
         OnStructureRemoved?.Invoke(structure);
@@ -124,7 +136,7 @@ public class WorldMap
     {
         foreach (var neighbour in _neighbours)
         {
-            if (StructuresMap[wall.Position.X + neighbour.X, wall.Position.Y + neighbour.Y] is Wall other)
+            if (_structuresMap[wall.Position.X + neighbour.X, wall.Position.Y + neighbour.Y] is Wall other)
             {
                 other.Connect(wall);
             }

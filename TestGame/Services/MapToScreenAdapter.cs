@@ -65,6 +65,11 @@ public class MapToScreenAdapter
     {
         return length * TileSize;
     }
+    
+    public int GetScreenLength(float length)
+    {
+        return (int) (length * TileSize);
+    }
 
     public Point GetMapPosition(Point screenPosition)
     {

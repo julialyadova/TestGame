@@ -1,23 +1,29 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TestGame.Adapters;
+using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Entities.Structures;
 using TestGame.Core.Map;
+using TestGame.Extensions;
 using TestGame.UI;
 
-namespace TestGame.Adapters;
+namespace TestGame.Services;
 
 public class MapDrawer
 {
     private readonly int _textureSize = 128;
+    private readonly int _textureSideWidth = 16;
+    private readonly float _textureSidePart;
     private readonly int _maxStructSize = 10;
     private WorldMap _map;
     private MapToScreenAdapter _screenAdapter;
     private MapTexturesRepository _textures;
     private FontsRepository _fonts;
-
+    
     private Rectangle _drawRect = Rectangle.Empty;
     private Rectangle _sourceRect = Rectangle.Empty;
     private Rectangle _viewport = Rectangle.Empty;
@@ -28,6 +34,7 @@ public class MapDrawer
         _screenAdapter = services.GetRequiredService<MapToScreenAdapter>();
         _textures = services.GetRequiredService<MapTexturesRepository>();
         _fonts = services.GetRequiredService<FontsRepository>();
+        _textureSidePart = (float)_textureSideWidth / _textureSize;
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -58,31 +65,93 @@ public class MapDrawer
     {
         for (int level = _viewport.Y; level < _viewport.Bottom + _maxStructSize; level++)
         {
-            foreach (var player in _map.Players)
-            {
-                if ((int)player.Position.Y == level)
-                    DrawPlayer(player, spriteBatch);
-            }
-
             if (_map.Structures[level] == null)
                 continue;
 
             foreach (var structure in _map.Structures[level])
             {
-                
                 if (structure.Position.X < _viewport.X - _maxStructSize || structure.Position.X >= _viewport.Right)
                     continue;
 
-                _drawRect.Location = _screenAdapter.GetScreenPosition(new Point(structure.Position.X, structure.Position.Y - structure.Height));
-                _drawRect.Height = _screenAdapter.GetScreenLength(structure.Size.Y + structure.Height);
-                _drawRect.Width = _screenAdapter.GetScreenLength(structure.Size.X);
+                UpdateDrawRectForStructure(structure);
     
                 if (structure is Wall wall)
                     DrawWall(wall, spriteBatch);
+                else if (structure is Farm farm)
+                    DrawFarm(farm, spriteBatch);
                 else
                     spriteBatch.Draw(_textures.GetTexture(structure.TextureName), _drawRect, Color.White );
             }
+            
+            DrawPlayersAtY(level, spriteBatch);
         }
+    }
+
+    private void UpdateDrawRectForStructure(Structure structure)
+    {
+        _drawRect.Location = _screenAdapter.GetScreenPosition(new Point(
+            structure.Position.X,
+            structure.Position.Y - structure.Height));
+        _drawRect.Height = _screenAdapter.GetScreenLength(structure.Size.Y + structure.Height);
+        _drawRect.Width = _screenAdapter.GetScreenLength(structure.Size.X);
+    }
+
+    private void DrawPlayersAtY(int y, SpriteBatch spriteBatch)
+    {
+        foreach (var player in _map.Players
+                     .Where(p => (int)p.Position.Y == y)
+                     .Where(p => p.Position.X > _viewport.Left && p.Position.Y < _viewport.Right)
+                     .OrderBy(p => p.Position.Y))
+        {
+            DrawPlayer(player, spriteBatch);
+        }
+    }
+
+    private void DrawFarm(Farm farm, SpriteBatch spriteBatch)
+    {
+        spriteBatch.Draw(_textures.GetTexture(farm.TextureName), _drawRect, Color.White );
+        var connectionWidth = _screenAdapter.GetScreenLength(_textureSidePart);
+
+        var topNeighbour = farm.Position.Y != 0 && _map.GetStructureAt(farm.Position.TopNeighbour()) is Farm;
+        if (topNeighbour)
+            DrawFarmYConnection(farm, connectionWidth, spriteBatch);
+        
+        var leftNeighbour = farm.Position.X != 0 && _map.GetStructureAt(farm.Position.LeftNeighbour()) is Farm;
+        if (leftNeighbour)
+            DrawFarmXConnection(farm, connectionWidth, spriteBatch);
+
+        if (leftNeighbour && topNeighbour && _map.GetStructureAt(farm.Position.TopLeftNeighbour()) is Farm)
+            DrawFarmCornerConnection(farm, connectionWidth, spriteBatch);
+    }
+
+    private void DrawFarmYConnection(Farm farm, int connectionHeight, SpriteBatch spriteBatch)
+    {
+        var rect = new Rectangle(
+            _drawRect.X,
+            _drawRect.Y - connectionHeight,
+            _screenAdapter.TileSize,
+            connectionHeight * 2);
+        spriteBatch.Draw(_textures.GetTexture(farm.YConnectionTexture), rect, Color.White );
+    }
+    
+    private void DrawFarmXConnection(Farm farm, int connectionWidth, SpriteBatch spriteBatch)
+    {
+        var rect = new Rectangle(
+            _drawRect.X - connectionWidth,
+            _drawRect.Y,
+            connectionWidth * 2,
+            _screenAdapter.TileSize);
+        spriteBatch.Draw(_textures.GetTexture(farm.XConnectionTexture), rect, Color.White );
+    }
+    
+    private void DrawFarmCornerConnection(Farm farm, int connectionWidth, SpriteBatch spriteBatch)
+    {
+        var rect = new Rectangle(
+            _drawRect.X - connectionWidth,
+            _drawRect.Y - connectionWidth,
+            connectionWidth * 2,
+            connectionWidth * 2);
+        spriteBatch.Draw(_textures.GetTexture(farm.CornerTexture), rect, Color.White );
     }
 
     private void DrawWall(Wall wall, SpriteBatch spriteBatch)
@@ -126,7 +195,7 @@ public class MapDrawer
         _drawRect.Location = _screenAdapter.GetScreenPosition(_map.Pointer);
         _drawRect.Width = _screenAdapter.TileSize;
         _drawRect.Height = _screenAdapter.TileSize;
-        if (_map.StructuresMap[_map.Pointer.X, _map.Pointer.Y] != null)
+        if (_map.GetStructureAt(_map.Pointer) != null)
         {
             spriteBatch.Draw(_textures.BlankTexture(), _drawRect, new Color(Color.DarkRed, 0.2f));
         }

@@ -34,7 +34,7 @@ public class PlayerController
         
         var newPosition = Player.Position + direction * MoveSpeed * deltaTime;
         var tile = newPosition.ToPoint();
-        if (_map.TileIsEmpty(tile))
+        if (_map.CanWalkTrough(tile))
             Player.Position = newPosition;
 
         Player.Direction = direction;
@@ -44,7 +44,7 @@ public class PlayerController
     public void Interact()
     {
         Debug.WriteLine("Interact");
-        var target = _map.StructuresMap[Focus.X, Focus.Y];
+        var target = _map.GetStructureAt(Focus);
         if (target != null)
             _map.Remove(target);
     }

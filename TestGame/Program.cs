@@ -5,6 +5,7 @@ using TestGame.Adapters;
 using TestGame.Commands;
 using TestGame.Core.Map;
 using TestGame.Network;
+using TestGame.Services;
 using TestGame.UI;
 using TestGame.UserInput;
 

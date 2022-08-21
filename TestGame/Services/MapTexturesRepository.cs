@@ -14,6 +14,10 @@ public class MapTexturesRepository
         "Textures/Structures/brick_wall",
         "Textures/Structures/Trees/tree",
         "Textures/Structures/Trees/high_tree",
+        "Textures/Structures/Farm/farm",
+        "Textures/Structures/Farm/farm_connect_x",
+        "Textures/Structures/Farm/farm_connect_y",
+        "Textures/Structures/Farm/farm_corner",
         "Textures/Creatures/player_male",
         "Textures/Creatures/player_female"
     };

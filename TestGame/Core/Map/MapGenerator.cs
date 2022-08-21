@@ -13,9 +13,7 @@ public class MapGenerator
     {
         map.Seed = seed;
         var random = new Random(seed);
-        
-        ClearMap(map);
-        
+
         for (int x = 0; x < map.Size.X; x++)
         for (int y = 0; y < map.Size.Y; y++)
         {
@@ -27,16 +25,24 @@ public class MapGenerator
                 else
                     map.Build(new Tree(), new Point(x,y));
             }
+
+            if (random.Next(0, 50) == 1)
+            {
+                GenerateFarm(map,random,x,y);
+            }
         }
+        
     }
 
-    private void ClearMap(WorldMap map)
+    private void GenerateFarm(WorldMap map, Random random, int x, int y)
     {
-        map.Structures = new List<Structure>[map.Size.Y];
-        for (int x = 0; x < map.Size.X; x++)
-        for (int y = 0; y < map.Size.Y; y++)
+        var farmSize = random.Next(2, 6);
         {
-            map.StructuresMap[x, y] = null;
+            for (int farmX = x; farmX < x + farmSize; farmX++)
+            for (int farmY = y; farmY < y + farmSize; farmY++)
+            {
+                map.Build(new Farm(), new Point(farmX, farmY));
+            }
         }
     }
 }
