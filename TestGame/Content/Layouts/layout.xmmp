@@ -9,8 +9,9 @@
       <Proportion Type="Part" Value="2" />
     </Grid.RowsProportions>
 
-    <TextButton Id="menu" Text="Settings" Width="100" Left="10" Top="10" HorizontalAlignment="Left" GridRow="0" GridColumn="0" />
-    <Label Id="log" Text="log" HorizontalAlignment="Center" Top="5" GridRow="0" GridColumn="0" />
+    <Label Id="fps" Text="fps" Top="5" Left="5"/>
+    <Label Id="log" Text="log" HorizontalAlignment="Center" Top="5"/>
+    <TextButton Id="menu" Text="Settings" Width="100" Left="-10" Top="10" HorizontalAlignment="Right"/>
 
   </Grid>
 </Project>

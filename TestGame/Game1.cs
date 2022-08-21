@@ -11,6 +11,7 @@ using Myra;
 using TestGame.Adapters;
 using TestGame.Core.Map;
 using TestGame.Network;
+using TestGame.Services;
 using TestGame.UI;
 using TestGame.UserInput;
 
@@ -21,6 +22,7 @@ public class Game1 : Game, IHostedService
 
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    private FPSMonitor _fpsMonitor;
 
     private WorldMap _map;
     private Config _config;
@@ -31,7 +33,7 @@ public class Game1 : Game, IHostedService
     private readonly MapTexturesRepository _mapTexturesRepository;
     private readonly FontsRepository _fontsRepository;
     private readonly UITexturesRepository _uiTexturesRepository;
-    
+
     private readonly PointerInput _pointerInput;
     private readonly ZoomInput _zoomInput;
     private readonly MoveInput _moveInput;
@@ -41,6 +43,7 @@ public class Game1 : Game, IHostedService
 
     public Game1(IServiceProvider services)
     {
+        _fpsMonitor = new FPSMonitor();
         _config = services.GetRequiredService<Config>();
         _server = services.GetRequiredService<Server>();
         _client = services.GetRequiredService<Client>();
@@ -117,6 +120,8 @@ public class Game1 : Game, IHostedService
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
+        _fpsMonitor.CountFrame((float) gameTime.ElapsedGameTime.TotalSeconds);
+        _gameUi.ShowFPS((int)_fpsMonitor.FramesPerSecond);
         
         _spriteBatch.Begin();
         _mapDrawer.Draw(_spriteBatch);

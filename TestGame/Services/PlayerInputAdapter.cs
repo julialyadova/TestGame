@@ -21,7 +21,7 @@ public class PlayerInputAdapter
     public void Move(Vector2 direction, GameTime gameTime)
     {
         _playerController.Move(direction, (float)gameTime.ElapsedGameTime.TotalSeconds);
-        _screenAdapter.SetMapOffset(-_playerController.Player.Position);
+        _screenAdapter.CenterMap(_playerController.Player.Position);
     }
     
     public void OnControlPressed(GameControl control)

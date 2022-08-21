@@ -11,7 +11,8 @@ namespace TestGame.Adapters;
 
 public class MapDrawer
 {
-    private const int TextureSize = 128;
+    private readonly int _textureSize = 128;
+    private readonly int _maxStructSize = 10;
     private WorldMap _map;
     private MapToScreenAdapter _screenAdapter;
     private MapTexturesRepository _textures;
@@ -19,6 +20,7 @@ public class MapDrawer
 
     private Rectangle _drawRect = Rectangle.Empty;
     private Rectangle _sourceRect = Rectangle.Empty;
+    private Rectangle _viewport = Rectangle.Empty;
 
     public MapDrawer(IServiceProvider services)
     {
@@ -30,6 +32,7 @@ public class MapDrawer
 
     public void Draw(SpriteBatch spriteBatch)
     {
+        _viewport = _screenAdapter.MapViewport;
         if (_map.Loaded)
         {
             DrawSurfaces(spriteBatch);
@@ -42,8 +45,8 @@ public class MapDrawer
         _drawRect.Width = _screenAdapter.TileSize;
         _drawRect.Height = _screenAdapter.TileSize;
         
-        for (int mapX = 0; mapX < _map.Size.X; mapX++)
-        for (int mapY = 0; mapY < _map.Size.Y; mapY++)
+        for (int mapX = _viewport.Left; mapX < _viewport.Right; mapX++)
+        for (int mapY = _viewport.Top; mapY < _viewport.Bottom; mapY++)
         {
             var surface = _map.SurfacesMap[mapX, mapY];
             _drawRect.Location = _screenAdapter.GetScreenPosition(new Point(mapX, mapY));
@@ -53,7 +56,7 @@ public class MapDrawer
 
     private void DrawStructures(SpriteBatch spriteBatch)
     {
-        for (int level = 0; level < _map.Size.Y; level++)
+        for (int level = _viewport.Y; level < _viewport.Bottom + _maxStructSize; level++)
         {
             foreach (var player in _map.Players)
             {
@@ -66,7 +69,10 @@ public class MapDrawer
 
             foreach (var structure in _map.Structures[level])
             {
-            
+                
+                if (structure.Position.X < _viewport.X - _maxStructSize || structure.Position.X >= _viewport.Right)
+                    continue;
+
                 _drawRect.Location = _screenAdapter.GetScreenPosition(new Point(structure.Position.X, structure.Position.Y - structure.Height));
                 _drawRect.Height = _screenAdapter.GetScreenLength(structure.Size.Y + structure.Height);
                 _drawRect.Width = _screenAdapter.GetScreenLength(structure.Size.X);
@@ -81,16 +87,16 @@ public class MapDrawer
 
     private void DrawWall(Wall wall, SpriteBatch spriteBatch)
     {
-        _sourceRect.Width = TextureSize;
-        _sourceRect.Height = TextureSize * (wall.Height + 1);
+        _sourceRect.Width = _textureSize;
+        _sourceRect.Height = _textureSize * (wall.Height + 1);
         if (wall.Left != null && wall.Right != null)
-            _sourceRect.X = TextureSize / 2;
+            _sourceRect.X = _textureSize / 2;
         else if (wall.Right == null)
-            _sourceRect.X = TextureSize;
+            _sourceRect.X = _textureSize;
         else if (wall.Left == null)
             _sourceRect.X = 0;
         else
-            _sourceRect.X = TextureSize * 2;
+            _sourceRect.X = _textureSize * 2;
         
         spriteBatch.Draw(_textures.GetTexture(wall.TextureName), _drawRect, _sourceRect, Color.White );
     }

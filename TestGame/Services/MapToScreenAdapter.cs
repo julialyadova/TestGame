@@ -1,68 +1,92 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TestGame.Core.Map;
 using TestGame.Extensions;
 
 namespace TestGame.Adapters;
 
 public class MapToScreenAdapter
 {
-    private const int DefaultTileSize = 64;
+    private const int DefaultTileSize = 50;
     private const int MinTileSize = 32;
-    private const int MaxTileSize = 80;
+    private const int MaxTileSize = 64;
 
-    public int TileSize
+    public int TileSize { get; private set; }
+    public Vector2 MapOffset { get; private set; }
+
+    public Point ScreenOffset { get; private set; }
+
+    public Point ScreenSize { get; }
+    private Point ScreenCenter { get; }
+    public Rectangle MapViewport => _mapViewport;
+    private Rectangle _mapViewport;
+    private WorldMap _map;
+
+    public MapToScreenAdapter(Config config, WorldMap map)
     {
-        get => _tileSize;
+        _map = map;
+        ScreenSize = new Point(config.ScreenWidth, config.ScreenHeight);
+        ScreenCenter = new Point(config.ScreenWidth / 2, config.ScreenHeight / 2);
+        TileSize = DefaultTileSize;
     }
-
-    private int _tileSize = DefaultTileSize;
-    private Point _offset;
-    private Point _center;
     
-    public MapToScreenAdapter(Config config)
-    {
-        _center.X = config.ScreenWidth / 2;
-        _center.Y = config.ScreenHeight / 2;
-    }
 
-    public void SetCenter(Point center)
+    public void CenterMap(Vector2 playerPosition)
     {
-        _center = center;
-    }
-
-    public void SetMapOffset(Vector2 offset)
-    {
-        _offset = (offset * _tileSize).ToPoint() + _center;
+        _mapViewport.Width = ScreenSize.X / (TileSize) + 2;
+        _mapViewport.Height = ScreenSize.Y / (TileSize) + 3;
+        _mapViewport.X = (int)playerPosition.X - _mapViewport.Width / 2;
+        _mapViewport.Y = (int)playerPosition.Y - _mapViewport.Height / 2;
+        if (_mapViewport.X < 0)
+            _mapViewport.X = 0;
+        if (_mapViewport.Y < 0)
+            _mapViewport.Y = 0;
+        if (_mapViewport.Right >= _map.Size.X)
+            _mapViewport.Width -= _map.Size.X - _mapViewport.Right;
+        if (_mapViewport.Bottom >= _map.Size.Y)
+            _mapViewport.Height -= _map.Size.Y - _mapViewport.Bottom;
+        
+        MapOffset = -playerPosition;
+        ScreenOffset = (-playerPosition * TileSize).ToPoint() + ScreenCenter;
     }
 
     public Point GetScreenPosition(Point mapPosition)
     {
-        return mapPosition.Multiply(_tileSize) + _offset;
+        return mapPosition.Multiply(TileSize) + ScreenOffset;
     }
     
     public Vector2 GetScreenPosition(Vector2 mapPosition)
     {
-        return mapPosition * _tileSize + _offset.ToVector2();
+        return mapPosition * TileSize + ScreenOffset.ToVector2();
     }
 
     public int GetScreenLength(int length)
     {
-        return length * _tileSize;
+        return length * TileSize;
     }
 
     public Point GetMapPosition(Point screenPosition)
     {
-        return (screenPosition - _offset).Divide(_tileSize);
+        return (screenPosition - ScreenOffset).Divide(TileSize);
     }
     
     public Vector2 GetMapPosition(Vector2 screenPosition)
     {
-        return (screenPosition - _offset.ToVector2()) / _tileSize;
+        return (screenPosition - ScreenOffset.ToVector2()) / TileSize;
     }
 
     public void Zoom(int value)
     {
-        _tileSize = Math.Clamp(_tileSize+value, MinTileSize, MaxTileSize);
+        TileSize = Math.Clamp(TileSize+value, MinTileSize, MaxTileSize);
+        UpdateViewport();
+    }
+
+    private void UpdateViewport()
+    {
+        _mapViewport.X = -(int)MapOffset.X;
+        _mapViewport.Y = -(int)MapOffset.Y;
+        _mapViewport.Width = ScreenSize.X / TileSize;
+        _mapViewport.Height = ScreenSize.Y / TileSize;
     }
 }

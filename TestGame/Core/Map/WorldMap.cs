@@ -15,7 +15,7 @@ public class WorldMap
     public bool Loaded;
     public int Seed;
     public Point SpawnPoint = Point.Zero;
-    public readonly Point Size = new(40, 40);
+    public readonly Point Size = new(4000, 4000);
     public GamePlayers Players;
     public List<Structure>[] Structures;
     public Structure[,] StructuresMap;

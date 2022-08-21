@@ -23,6 +23,7 @@ public class GameUI
     private TextButton _joinButton;
     private TextButton _leaveButton;
     private Label _log;
+    private Label _fps;
 
     public GameUI(IServiceProvider services)
     {
@@ -73,6 +74,7 @@ public class GameUI
         }
         _menuButton = _mainLayout.Root.FindWidgetById("menu") as TextButton;
         _log = _mainLayout.Root.FindWidgetById("log") as Label;
+        _fps = _mainLayout.Root.FindWidgetById("fps") as Label;
 
         Project menu;
         using (StreamReader reader = new StreamReader("Content/Layouts/menu.xmmp"))
@@ -92,6 +94,11 @@ public class GameUI
     {
         if (_log != null) 
             _log.Text = message;
+    }
+
+    public void ShowFPS(int fps)
+    {
+        _fps.Text = fps.ToString();
     }
     
     public void Draw()
