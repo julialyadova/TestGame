@@ -10,9 +10,10 @@ using Microsoft.Xna.Framework.Graphics;
 using Myra;
 using TestGame.Adapters;
 using TestGame.Core.Map;
+using TestGame.Drawing;
+using TestGame.Drawing.Repositories;
 using TestGame.Network;
 using TestGame.Services;
-using TestGame.UI;
 using TestGame.UserInput;
 
 namespace TestGame;
@@ -29,10 +30,8 @@ public class Game1 : Game, IHostedService
     private Server _server;
     private Client _client;
     private GameUI _gameUi;
-    
-    private readonly MapTexturesRepository _mapTexturesRepository;
-    private readonly FontsRepository _fontsRepository;
-    private readonly UITexturesRepository _uiTexturesRepository;
+
+    private readonly List<IContentRepository> _contentRepositories;
 
     private readonly PointerInput _pointerInput;
     private readonly ZoomInput _zoomInput;
@@ -49,10 +48,14 @@ public class Game1 : Game, IHostedService
         _client = services.GetRequiredService<Client>();
         _gameUi = services.GetRequiredService<GameUI>();
         _map = services.GetRequiredService<WorldMap>();
-        
-        _mapTexturesRepository = services.GetRequiredService<MapTexturesRepository>();
-        _uiTexturesRepository = services.GetRequiredService<UITexturesRepository>();
-        _fontsRepository = services.GetRequiredService<FontsRepository>();
+
+        _contentRepositories = new List<IContentRepository>()
+        {
+            services.GetRequiredService<MapTexturesRepository>(),
+            services.GetRequiredService<UITexturesRepository>(),
+            services.GetRequiredService<FontsRepository>(),
+            services.GetRequiredService<PlayerTexturesRepository>()
+        };
         
         _mapDrawer = services.GetRequiredService<MapDrawer>();
 
@@ -95,9 +98,8 @@ public class Game1 : Game, IHostedService
         
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         
-        _uiTexturesRepository.LoadContent(GraphicsDevice, Content);
-        _mapTexturesRepository.LoadContent(GraphicsDevice, Content);
-        _fontsRepository.LoadContent(GraphicsDevice, Content);
+        foreach (var repository in _contentRepositories)
+            repository.LoadContent(GraphicsDevice, Content);
     }
 
     protected override void Update(GameTime gameTime)

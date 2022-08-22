@@ -2,24 +2,17 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TestGame.Services;
 
-namespace TestGame.Adapters;
+namespace TestGame.Drawing.Repositories;
 
-public class MapTexturesRepository
+public class UITexturesRepository : IContentRepository
 {
     private List<string> textureNames = new ()
     {
-        "Textures/World/grass",
-        "Textures/Structures/wall",
-        "Textures/Structures/brick_wall",
-        "Textures/Structures/Trees/tree",
-        "Textures/Structures/Trees/high_tree",
-        "Textures/Structures/Farm/farm",
-        "Textures/Structures/Farm/farm_connect_x",
-        "Textures/Structures/Farm/farm_connect_y",
-        "Textures/Structures/Farm/farm_corner",
-        "Textures/Creatures/player_male",
-        "Textures/Creatures/player_female"
+        "Textures/UI/btn_host",
+        "Textures/UI/btn_join",
+        "Textures/UI/btn_exit"
     };
     private Dictionary<string, Texture2D> textures = new ();
     private Texture2D _undefinedTexture;
@@ -27,7 +20,7 @@ public class MapTexturesRepository
     public void LoadContent(GraphicsDevice device, ContentManager contentManager)
     {
         _undefinedTexture = new Texture2D(device, 1, 1);
-        _undefinedTexture.SetData(new []{Color.Fuchsia});
+        _undefinedTexture.SetData(new []{Color.Wheat});
         
         foreach (var name in textureNames)
         {

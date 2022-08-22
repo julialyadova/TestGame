@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using TestGame.Core.Map;
+using TestGame.Drawing;
 using TestGame.UserInput;
 
 namespace TestGame.Adapters;

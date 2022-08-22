@@ -4,9 +4,10 @@ using TestGame;
 using TestGame.Adapters;
 using TestGame.Commands;
 using TestGame.Core.Map;
+using TestGame.Drawing;
+using TestGame.Drawing.Repositories;
 using TestGame.Network;
 using TestGame.Services;
-using TestGame.UI;
 using TestGame.UserInput;
 
 var builder = Host.CreateDefaultBuilder(args);
@@ -29,6 +30,7 @@ builder.ConfigureServices(
         services.AddScoped<FontsRepository>();
         services.AddScoped<UITexturesRepository>();
         services.AddScoped<MapTexturesRepository>();
+        services.AddScoped<PlayerTexturesRepository>();
         services.AddScoped<MapToScreenAdapter>();
         services.AddScoped<MapDrawer>();
 

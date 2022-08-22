@@ -8,10 +8,10 @@ using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Entities.Structures;
 using TestGame.Core.Map;
+using TestGame.Drawing.Repositories;
 using TestGame.Extensions;
-using TestGame.UI;
 
-namespace TestGame.Services;
+namespace TestGame.Drawing;
 
 public class MapDrawer
 {
@@ -22,6 +22,7 @@ public class MapDrawer
     private WorldMap _map;
     private MapToScreenAdapter _screenAdapter;
     private MapTexturesRepository _textures;
+    private PlayerTexturesRepository _playerTextures;
     private FontsRepository _fonts;
     
     private Rectangle _drawRect = Rectangle.Empty;
@@ -33,6 +34,7 @@ public class MapDrawer
         _map = services.GetRequiredService<WorldMap>();
         _screenAdapter = services.GetRequiredService<MapToScreenAdapter>();
         _textures = services.GetRequiredService<MapTexturesRepository>();
+        _playerTextures = services.GetRequiredService<PlayerTexturesRepository>();
         _fonts = services.GetRequiredService<FontsRepository>();
         _textureSidePart = (float)_textureSideWidth / _textureSize;
     }
@@ -172,19 +174,39 @@ public class MapDrawer
 
     private void DrawPlayer(Player player, SpriteBatch spriteBatch)
     {
-        
-        var playerSizeOffset = new Vector2(player.Size.X / 2, player.Size.Y);
-        _drawRect.Location = _screenAdapter.GetScreenPosition(player.Position - playerSizeOffset).ToPoint();
+        _drawRect.Location = _screenAdapter.GetScreenPosition(player.Position - new Vector2(0.5f, 2f)).ToPoint();
         _drawRect.Size = (player.Size * _screenAdapter.TileSize).ToPoint();
-        spriteBatch.Draw(_textures.GetTexture(player.TextureName), _drawRect, Color.BurlyWood);
-        _drawRect.X += _drawRect.Width / 2;
+
+        var playerTexture = _playerTextures.GetTexture(player.TextureName);
+        if (player.LooksLeft())
+            spriteBatch.Draw(
+                playerTexture.Side,
+                _drawRect,
+                playerTexture.Side.Bounds,
+                Color.White,
+                0,
+                new Vector2(0.5f, 0),
+                SpriteEffects.FlipHorizontally,
+                1);
+        else if (player.LooksRight())
+            spriteBatch.Draw(playerTexture.Side, _drawRect, Color.White);
+        else if (player.LooksForward())
+            spriteBatch.Draw(playerTexture.Front, _drawRect, Color.White);
+        else if (player.LooksBack())
+            spriteBatch.Draw(playerTexture.Back, _drawRect, Color.White);
+
+        DrawPlayerName(player, spriteBatch);
+    }
+
+    private void DrawPlayerName(Player player, SpriteBatch spriteBatch)
+    {
         spriteBatch.DrawString(
             _fonts.MainFont,
             player.Name, 
             _drawRect.Location.ToVector2(),
             Color.White, 
             0f, 
-            new Vector2(player.Name.Length * 4,16), 
+            new Vector2(player.Name.Length * 5,16), 
             new Vector2(1,1),
             SpriteEffects.None,
             1);

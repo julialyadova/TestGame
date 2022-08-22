@@ -1,10 +1,9 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using TestGame.Core.Map;
 using TestGame.Extensions;
 
-namespace TestGame.Adapters;
+namespace TestGame.Drawing;
 
 public class MapToScreenAdapter
 {

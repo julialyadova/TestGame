@@ -44,7 +44,7 @@
 /processorParam:TextureFormat=Color
 /build:stone.png
 
-#begin Textures/Creatures/player_female.png
+#begin Textures/Players/player_b.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -54,9 +54,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Textures/Creatures/player_female.png
+/build:Textures/Players/player_b.png
 
-#begin Textures/Creatures/player_male.png
+#begin Textures/Players/player_f.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -66,7 +66,19 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Textures/Creatures/player_male.png
+/build:Textures/Players/player_f.png
+
+#begin Textures/Players/player_s.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Players/player_s.png
 
 #begin Textures/Structures/brick_wall.png
 /importer:TextureImporter

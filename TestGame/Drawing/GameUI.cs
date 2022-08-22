@@ -1,13 +1,10 @@
 ﻿using System;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Xna.Framework;
-using Myra;
 using Myra.Graphics2D.UI;
 using TestGame.Commands;
 
-
-namespace TestGame.UI;
+namespace TestGame.Drawing;
 
 public class GameUI
 {

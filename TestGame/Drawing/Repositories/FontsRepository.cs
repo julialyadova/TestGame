@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TestGame.UI;
+namespace TestGame.Drawing.Repositories;
 
-public class FontsRepository
+public class FontsRepository : IContentRepository
 {
     public SpriteFont MainFont;
     public int LetterWidth;
