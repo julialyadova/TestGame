@@ -41,10 +41,10 @@ public class MapToScreenAdapter
             _mapViewport.X = 0;
         if (_mapViewport.Y < 0)
             _mapViewport.Y = 0;
-        if (_mapViewport.Right >= _map.Size.X)
-            _mapViewport.Width -= _map.Size.X - _mapViewport.Right;
-        if (_mapViewport.Bottom >= _map.Size.Y)
-            _mapViewport.Height -= _map.Size.Y - _mapViewport.Bottom;
+        if (_mapViewport.Right > _map.Size.X)
+            _mapViewport.Width = _map.Size.X - _mapViewport.X;
+        if (_mapViewport.Bottom > _map.Size.Y)
+            _mapViewport.Height = _map.Size.Y - _mapViewport.Y;
         
         MapOffset = -playerPosition;
         ScreenOffset = (-playerPosition * TileSize).ToPoint() + ScreenCenter;
