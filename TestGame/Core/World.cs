@@ -1,9 +1,9 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Structures;
+using TestGame.Core.Map;
 using TestGame.Core.Players;
 
-namespace TestGame.Core.Map;
+namespace TestGame.Core;
 
 public class World
 {

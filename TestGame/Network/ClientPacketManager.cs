@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using TestGame.Adapters;
 using TestGame.Commands;
+using TestGame.Core;
 using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Map;

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using TestGame;
 using TestGame.Adapters;
 using TestGame.Commands;
+using TestGame.Core;
 using TestGame.Core.Map;
 using TestGame.Drawing;
 using TestGame.Drawing.Repositories;

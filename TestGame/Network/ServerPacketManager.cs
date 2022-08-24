@@ -5,6 +5,7 @@ using System.Linq;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using TestGame.Core;
 using TestGame.Core.Map;
 using TestGame.Network.Packets;
 

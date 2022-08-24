@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
+using TestGame.Core;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Map;
 using TestGame.UserInput;

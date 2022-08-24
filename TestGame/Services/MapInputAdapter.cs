@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
+using TestGame.Core;
 using TestGame.Core.Map;
 using TestGame.Drawing;
 

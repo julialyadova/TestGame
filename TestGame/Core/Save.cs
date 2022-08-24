@@ -1,4 +1,4 @@
-﻿namespace TestGame.Core.Map;
+﻿namespace TestGame.Core;
 
 public class Save
 {

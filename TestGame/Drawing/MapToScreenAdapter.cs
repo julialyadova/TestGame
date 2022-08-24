@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using TestGame.Core;
 using TestGame.Core.Map;
 using TestGame.Extensions;
 
