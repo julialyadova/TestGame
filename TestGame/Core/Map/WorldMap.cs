@@ -11,7 +11,7 @@ namespace TestGame.Core.Map;
 public class WorldMap
 {
     public int Seed;
-    public readonly Point Size = new(100, 100);
+    public readonly Point Size = new(4000, 4000);
     public readonly Rectangle Bounds;
     public Point SpawnPoint;
     public List<Structure>[] Structures;

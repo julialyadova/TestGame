@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Xna.Framework;
 using Myra.Graphics2D.UI;
 using TestGame.Commands;
 
@@ -21,6 +22,8 @@ public class GameUI
     private TextButton _leaveButton;
     private Label _log;
     private Label _fps;
+    private Label _loading;
+    private int _loadingStep;
 
     public GameUI(IServiceProvider services)
     {
@@ -60,6 +63,22 @@ public class GameUI
             _joinButton.Enabled = true;
             _hostButton.Enabled = true;
         };
+        _loading.Scale = new Vector2(2,2);
+        _loading.TextColor = Color.Chartreuse;
+        _loading.BeforeRender += context =>
+        {
+            if (_loadingStep == 30)
+                _loading.Text = ".";
+            else if (_loadingStep == 60)
+                _loading.Text = "..";
+            else if (_loadingStep == 90)
+            {
+                _loading.Text = "...";
+                _loadingStep = 0;
+            }
+
+            _loadingStep++;
+        };
     }
 
     private void LoadProject()
@@ -72,6 +91,7 @@ public class GameUI
         _menuButton = _mainLayout.Root.FindWidgetById("menu") as TextButton;
         _log = _mainLayout.Root.FindWidgetById("log") as Label;
         _fps = _mainLayout.Root.FindWidgetById("fps") as Label;
+        _loading = _mainLayout.Root.FindWidgetById("loading") as Label;
 
         Project menu;
         using (StreamReader reader = new StreamReader("Content/Layouts/menu.xmmp"))
@@ -96,6 +116,16 @@ public class GameUI
     public void ShowFPS(int fps)
     {
         _fps.Text = fps.ToString();
+    }
+    
+    public void ShowLoading()
+    {
+        _loading.Visible = true;
+    }
+    
+    public void HideLoading()
+    {
+        _loading.Visible = false;
     }
     
     public void Draw()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using LiteNetLib.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
@@ -8,7 +9,7 @@ using TestGame.Commands;
 using TestGame.Core;
 using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
-using TestGame.Core.Map;
+using TestGame.Drawing;
 using TestGame.Network.Packets;
 
 namespace TestGame.Network;
@@ -20,7 +21,7 @@ public class ClientPacketManager
     
     private World _world;
     private Player _userPlayer;
-    private LogCommand _logCommand;
+    private GameUI _ui;
     private SyncPlayerPacket _syncPacket;
     private bool _connected;
     
@@ -28,7 +29,7 @@ public class ClientPacketManager
     {
         _world = services.GetRequiredService<World>();
         _userPlayer = services.GetRequiredService<PlayerController>().Player;
-        _logCommand = services.GetRequiredService<LogCommand>();
+        _ui = services.GetRequiredService<GameUI>();
         
         _world.Map.OnStructureRemoved += structure => RequireSync(GetStructureRemovedPacket(structure));
     }
@@ -55,20 +56,23 @@ public class ClientPacketManager
         };
     }
 
-    public void OnJoinAccepted(JoinAcceptedPacket packet)
+    public async Task OnJoinAccepted(JoinAcceptedPacket packet)
     {
-        _logCommand.SetMessage("Join request was accepted! Loading map..").Execute();
+        _ui.ShowMessage("Join request was accepted! Loading map..");
         
         _userPlayer.Id = packet.PlayerId;
         Debug.WriteLine($"Client: join request accepted! Your Id is {packet.PlayerId}. Loading map..");
         
-        _world.Load(new Save() {MapSeed = packet.MapSeed});
+        _ui.ShowLoading();
+        await _world.LoadAsync(new Save() {MapSeed = packet.MapSeed});
+        _ui.HideLoading();
+        
         Debug.WriteLine($"Client: map loaded");
     }
     
     public void OnJoinRejected(JoinRejectedPacket packet)
     {
-        _logCommand.SetMessage($"Join request was rejected : {packet.Reason}").Execute();
+        _ui.ShowMessage($"Join request was rejected : {packet.Reason}");
     }
 
     public void SpawnPlayer(SpawnPlayerPacket packet)
@@ -77,7 +81,7 @@ public class ClientPacketManager
         {
             _userPlayer.Position = new Vector2(packet.X, packet.Y);
             _world.Players.Add(_userPlayer);
-            _logCommand.SetMessage("Welcome to server!").Execute();
+            _ui.ShowMessage("Welcome to server!");
             _connected = true;
 
             _syncPacket = new SyncPlayerPacket()

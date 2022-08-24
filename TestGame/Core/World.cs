@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Structures;
 using TestGame.Core.Map;
 using TestGame.Core.Players;
@@ -23,10 +24,10 @@ public class World
             Map.Build(new Wall(1), position);
     }
 
-    public void Load(Save save)
+    public async Task LoadAsync(Save save)
     {
         IsLoaded = false;
-        Map.Load(save.MapSeed);
+        await Task.Run(() => Map.Load(save.MapSeed));
         IsLoaded = true;
     }
     

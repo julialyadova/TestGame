@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -94,9 +95,9 @@ public class Client
         reader.Recycle();
     }
 
-    public void OnJoinAcceptedPacketReceived(JoinAcceptedPacket packet)
+    public async Task OnJoinAcceptedPacketReceived(JoinAcceptedPacket packet)
     {
-        _packetManager.OnJoinAccepted(packet);
+        await _packetManager.OnJoinAccepted(packet);
         
         Debug.WriteLine("Client : sending join packet with player data");
         _writer.Reset();
