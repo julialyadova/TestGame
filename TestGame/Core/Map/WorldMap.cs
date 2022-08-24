@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Structures;
@@ -11,7 +12,7 @@ namespace TestGame.Core.Map;
 public class WorldMap
 {
     public int Seed;
-    public readonly Point Size = new(4000, 4000);
+    public readonly Point Size = new(100, 100);
     public readonly Rectangle Bounds;
     public Point SpawnPoint;
     public List<Structure>[] Structures;
@@ -21,7 +22,7 @@ public class WorldMap
 
     private Structure[,] _structuresMap;
     private readonly Point[] _neighbours = { new(-1, 0), new(1, 0), new(0, 1), new(1, 0) };
-
+    
     public WorldMap()
     {
         Structures = new List<Structure>[Size.Y];

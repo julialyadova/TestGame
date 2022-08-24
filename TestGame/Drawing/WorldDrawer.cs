@@ -68,7 +68,7 @@ public class MapDrawer
 
     private void DrawStructures(SpriteBatch spriteBatch)
     {
-        for (int level = _viewport.Y; level < _viewport.Bottom + _maxStructSize; level++)
+        for (int level = _viewport.Y; level < Math.Min(_viewport.Bottom + _maxStructSize, _map.Size.Y); level++)
         {
             if (_map.Structures[level] == null)
                 continue;
@@ -105,7 +105,7 @@ public class MapDrawer
     {
         foreach (var player in _world.Players
                      .Where(p => (int)p.Position.Y == y)
-                     .Where(p => p.Position.X > _viewport.Left && p.Position.Y < _viewport.Right)
+                     .Where(p => p.Position.X > _viewport.Left && p.Position.X < _viewport.Right)
                      .OrderBy(p => p.Position.Y))
         {
             DrawPlayer(player, spriteBatch);
