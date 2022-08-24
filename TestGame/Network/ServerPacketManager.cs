@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -16,11 +15,11 @@ public class ServerPacketManager
     private Dictionary<string, byte> _registeredPlayers; //todo: store username-id dictionary on host (players' saves)
     private Dictionary<int, byte> _connectedPeers;
     private byte _lastPlayerId; //loads from stored username-id file
-    private WorldMap _map;
+    private World _world;
 
     public ServerPacketManager(IServiceProvider services)
     {
-        _map = services.GetRequiredService<WorldMap>();
+        _world = services.GetRequiredService<World>();
         _registeredPlayers = new();
         _connectedPeers = new();
     }
@@ -59,7 +58,7 @@ public class ServerPacketManager
         return new JoinAcceptedPacket()
         {
             PlayerId = playerId,
-            MapSeed = _map.Seed
+            MapSeed = _world.Map.Seed
         };
     }
 
@@ -75,14 +74,14 @@ public class ServerPacketManager
             PlayerId = _connectedPeers[peer.Id],
             Name = packet.Username,
             Texture = packet.Texture,
-            X = _map.SpawnPoint.X,
-            Y = _map.SpawnPoint.Y
+            X = _world.Map.SpawnPoint.X,
+            Y = _world.Map.SpawnPoint.Y
         };
     }
 
     public IEnumerable<SpawnPlayerPacket> GetSpawnPacketsOfConnectedPlayers()
     {
-        return _map.Players.Select(player  => new SpawnPlayerPacket()
+        return _world.Players.Select(player  => new SpawnPlayerPacket()
         {
             PlayerId = player.Id,
             Name = player.Name,

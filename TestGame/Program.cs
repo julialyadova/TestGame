@@ -24,7 +24,7 @@ builder.ConfigureServices(
 
         services.AddScoped<GameUI>();
 
-        services.AddScoped<WorldMap>();
+        services.AddScoped<World>();
         services.AddScoped<PlayerController>();
 
         services.AddScoped<FontsRepository>();

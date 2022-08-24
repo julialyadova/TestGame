@@ -19,6 +19,7 @@ public class MapDrawer
     private readonly int _textureSideWidth = 16;
     private readonly float _textureSidePart;
     private readonly int _maxStructSize = 10;
+    private World _world;
     private WorldMap _map;
     private MapToScreenAdapter _screenAdapter;
     private MapTexturesRepository _textures;
@@ -31,7 +32,8 @@ public class MapDrawer
 
     public MapDrawer(IServiceProvider services)
     {
-        _map = services.GetRequiredService<WorldMap>();
+        _world = services.GetRequiredService<World>();
+        _map = _world.Map;
         _screenAdapter = services.GetRequiredService<MapToScreenAdapter>();
         _textures = services.GetRequiredService<MapTexturesRepository>();
         _playerTextures = services.GetRequiredService<PlayerTexturesRepository>();
@@ -42,7 +44,7 @@ public class MapDrawer
     public void Draw(SpriteBatch spriteBatch)
     {
         _viewport = _screenAdapter.MapViewport;
-        if (_map.Loaded)
+        if (_world.IsLoaded)
         {
             DrawSurfaces(spriteBatch);
             DrawStructures(spriteBatch);
@@ -100,7 +102,7 @@ public class MapDrawer
 
     private void DrawPlayersAtY(int y, SpriteBatch spriteBatch)
     {
-        foreach (var player in _map.Players
+        foreach (var player in _world.Players
                      .Where(p => (int)p.Position.Y == y)
                      .Where(p => p.Position.X > _viewport.Left && p.Position.Y < _viewport.Right)
                      .OrderBy(p => p.Position.Y))

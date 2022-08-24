@@ -22,9 +22,9 @@ public class MapToScreenAdapter
     private Rectangle _mapViewport;
     private WorldMap _map;
 
-    public MapToScreenAdapter(Config config, WorldMap map)
+    public MapToScreenAdapter(Config config, World world)
     {
-        _map = map;
+        _map = world.Map;
         ScreenSize = new Point(config.ScreenWidth, config.ScreenHeight);
         ScreenCenter = new Point(config.ScreenWidth / 2, config.ScreenHeight / 2);
         TileSize = DefaultTileSize;

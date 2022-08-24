@@ -12,6 +12,5 @@
     <Label Id="fps" Text="fps" Top="5" Left="5"/>
     <Label Id="log" Text="log" HorizontalAlignment="Center" Top="5"/>
     <TextButton Id="menu" Text="Settings" Width="100" Left="-10" Top="10" HorizontalAlignment="Right"/>
-
   </Grid>
 </Project>

@@ -17,7 +17,7 @@ public class ClientPacketManager
     public bool PlayerConnected => _connected;
     public Action<INetSerializable> OnSyncRequired;
     
-    private WorldMap _map;
+    private World _world;
     private Player _userPlayer;
     private LogCommand _logCommand;
     private SyncPlayerPacket _syncPacket;
@@ -25,11 +25,11 @@ public class ClientPacketManager
     
     public ClientPacketManager(IServiceProvider services)
     {
-        _map = services.GetRequiredService<WorldMap>();
+        _world = services.GetRequiredService<World>();
         _userPlayer = services.GetRequiredService<PlayerController>().Player;
         _logCommand = services.GetRequiredService<LogCommand>();
         
-        _map.OnStructureRemoved += structure => RequireSync(GetStructureRemovedPacket(structure));
+        _world.Map.OnStructureRemoved += structure => RequireSync(GetStructureRemovedPacket(structure));
     }
 
     public void UseUsername(string username)
@@ -61,7 +61,7 @@ public class ClientPacketManager
         _userPlayer.Id = packet.PlayerId;
         Debug.WriteLine($"Client: join request accepted! Your Id is {packet.PlayerId}. Loading map..");
         
-        _map.Load(packet.MapSeed);
+        _world.Load(new Save() {MapSeed = packet.MapSeed});
         Debug.WriteLine($"Client: map loaded");
     }
     
@@ -75,7 +75,7 @@ public class ClientPacketManager
         if (packet.PlayerId == _userPlayer.Id)
         {
             _userPlayer.Position = new Vector2(packet.X, packet.Y);
-            _map.Players.Add(_userPlayer);
+            _world.Players.Add(_userPlayer);
             _logCommand.SetMessage("Welcome to server!").Execute();
             _connected = true;
 
@@ -84,9 +84,9 @@ public class ClientPacketManager
                 PlayerId = _userPlayer.Id
             };
         }
-        else if (!_map.Players.Exists(packet.PlayerId))
+        else if (!_world.Players.Exists(packet.PlayerId))
         {
-            _map.Players.Add(new Player()
+            _world.Players.Add(new Player()
             {
                 Id = packet.PlayerId,
                 Name = packet.Name,
@@ -107,14 +107,14 @@ public class ClientPacketManager
 
     public void SyncPlayer(SyncPlayerPacket packet)
     {
-        if (packet.PlayerId != _userPlayer.Id && _map.Players.Exists(packet.PlayerId))
-            _map.Players.FindById(packet.PlayerId).Position = new Vector2(packet.X, packet.Y);
+        if (packet.PlayerId != _userPlayer.Id && _world.Players.Exists(packet.PlayerId))
+            _world.Players.FindById(packet.PlayerId).Position = new Vector2(packet.X, packet.Y);
     }
 
     public void Disconnect()
     {
         _connected = false;
-        _map.UnLoad();
+        _world.Quit();
     }
 
     public void OnPlayerDiconnected(PlayerDisconnectedPacket packet)
@@ -125,13 +125,13 @@ public class ClientPacketManager
         }
         else
         {
-            _map.Players.RemovePlayer(packet.PlayerId);
+            _world.Players.RemovePlayer(packet.PlayerId);
         }
     }
 
     public void OnStructureRemoved(StructureRemovedPacket packet)
     {
-        _map.RemoveStructure(packet.X, packet.Y);
+        _world.Map.RemoveStructure(packet.X, packet.Y);
     }
     
     private void RequireSync(INetSerializable packet)

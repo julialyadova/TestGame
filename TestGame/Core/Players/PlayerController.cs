@@ -20,7 +20,7 @@ public class PlayerController
     public PlayerController(IServiceProvider services)
     {
         _config = services.GetRequiredService<Config>();
-        _map = services.GetRequiredService<WorldMap>();
+        _map = services.GetRequiredService<World>().Map;
         
         Player = new Player();
         Player.Name = _config.Username;

@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using TestGame.Core.Entities.Base;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+﻿using TestGame.Core.Entities.Base;
+using TestGame.Extensions;
 
 namespace TestGame.Core.Entities.Structures;
 
@@ -9,23 +7,50 @@ public class Wall : Structure
 {
     public Wall Left;
     public Wall Right;
+    public Wall Top;
+    public Wall Bottom;
+    
     public Wall(int height)
     {
         Height = height;
         TextureName = "Textures/Structures/brick_wall";
     }
 
-    public void Connect(Wall wall)
+    public void Connect(Wall neighbour)
     {
-        if (wall.Position.X == Position.X + 1)
+        if (neighbour.Position == Position.RightNeighbour())
         {
-            Right = wall;
-            wall.Left = this;
+            Right = neighbour;
+            neighbour.Left = this;
         }
-        else if (wall.Position.X == Position.X - 1)
+        else if (neighbour.Position == Position.LeftNeighbour())
         {
-            Left = wall;
-            wall.Right = this; 
+            Left = neighbour;
+            neighbour.Right = this; 
         }
+        else if (neighbour.Position == Position.TopNeighbour())
+        {
+            Top = neighbour;
+            neighbour.Bottom = this; 
+        }
+        else if (neighbour.Position == Position.BottomNeighbour())
+        {
+            Bottom = neighbour;
+            neighbour.Top = this; 
+        }
+    }
+
+    public override void OnDestroy()
+    {
+        if (Left != null)
+            Left.Right = null;
+        if (Right != null)
+            Right.Left = null;
+        if (Top != null)
+            Top.Bottom = null;
+        if (Bottom != null)
+            Bottom.Top = null;
+        
+        base.OnDestroy();
     }
 }

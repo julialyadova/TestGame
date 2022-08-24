@@ -1,11 +1,11 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
-using TestGame.Core.Map;
+using TestGame.Adapters;
 using TestGame.Drawing;
 using TestGame.UserInput;
 
-namespace TestGame.Adapters;
+namespace TestGame.Services;
 
 public class PlayerInputAdapter
 {

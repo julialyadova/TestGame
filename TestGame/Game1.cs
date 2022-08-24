@@ -25,7 +25,6 @@ public class Game1 : Game, IHostedService
     private SpriteBatch _spriteBatch;
     private FPSMonitor _fpsMonitor;
 
-    private WorldMap _map;
     private Config _config;
     private Server _server;
     private Client _client;
@@ -47,7 +46,6 @@ public class Game1 : Game, IHostedService
         _server = services.GetRequiredService<Server>();
         _client = services.GetRequiredService<Client>();
         _gameUi = services.GetRequiredService<GameUI>();
-        _map = services.GetRequiredService<WorldMap>();
 
         _contentRepositories = new List<IContentRepository>()
         {
@@ -109,8 +107,6 @@ public class Game1 : Game, IHostedService
         _zoomInput.Update(gameTime);
         _moveInput.Update(gameTime);
         _controlsInput.Update(gameTime);
-        
-        _map.Update((float) gameTime.ElapsedGameTime.TotalSeconds);
 
         _client.Update();
         _server.Update();
