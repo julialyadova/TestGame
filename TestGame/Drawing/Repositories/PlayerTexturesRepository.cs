@@ -5,7 +5,7 @@ using TestGame.Services;
 
 namespace TestGame.Drawing.Repositories;
 
-public class PlayerTexturesRepository : IContentRepository
+public class PlayerTexturesRepository : ContentRepository
 {
     private readonly string texturePath = "Textures/Players/";
     private readonly string frontSuffix = "_f";
@@ -19,14 +19,14 @@ public class PlayerTexturesRepository : IContentRepository
     
     private Dictionary<string, PlayerTexture> textures = new ();
 
-    public void LoadContent(GraphicsDevice device, ContentManager contentManager)
+    public PlayerTexturesRepository()
     {
         foreach (var name in textureNames)
         {
             textures[name] = new PlayerTexture(
-                contentManager.Load<Texture2D>(texturePath + name + frontSuffix),
-                contentManager.Load<Texture2D>(texturePath + name + backSuffix)
-,                contentManager.Load<Texture2D>(texturePath + name + sideSuffix)) ;
+                ContentManager.Load<Texture2D>(texturePath + name + frontSuffix),
+                ContentManager.Load<Texture2D>(texturePath + name + backSuffix)
+,                ContentManager.Load<Texture2D>(texturePath + name + sideSuffix)) ;
         }
     }
 

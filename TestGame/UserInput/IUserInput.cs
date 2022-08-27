@@ -4,5 +4,5 @@ namespace TestGame.UserInput;
 
 public interface IUserInput
 {
-    void Update(GameTime gameTime);
+    void UpdateState();
 }

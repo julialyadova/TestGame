@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+    <Label Id="loading" Text="loading" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+</Project>

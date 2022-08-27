@@ -1,22 +1,23 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 
 namespace TestGame.UserInput;
 
-public class KeyboardControlsInput : ControlsInput
+public class KeyboardControlsInput : IControlsInput
 {
-    private bool _pressedE;
-    public override void Update(GameTime gameTime)
+    private Control _interact;
+    public void UpdateState()
     {
         var kstate = Keyboard.GetState();
+        _interact.UpdateState(kstate.IsKeyDown(Keys.E));
+    }
 
-        if (kstate.IsKeyDown(Keys.E) && !_pressedE)
-        {
-            _pressedE = true;
-            Press(GameControl.Interact);
-        }
+    public bool ControlPressed()
+    {
+        return false;
+    }
 
-        if (_pressedE && kstate.IsKeyUp(Keys.E))
-            _pressedE = false;
+    public GameControl GetPressedControl()
+    {
+        return GameControl.None;
     }
 }

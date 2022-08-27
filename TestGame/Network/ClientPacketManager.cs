@@ -4,12 +4,10 @@ using System.Threading.Tasks;
 using LiteNetLib.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
-using TestGame.Adapters;
-using TestGame.Commands;
 using TestGame.Core;
 using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
-using TestGame.Drawing;
+using TestGame.Core.Players;
 using TestGame.Network.Packets;
 
 namespace TestGame.Network;
@@ -21,22 +19,20 @@ public class ClientPacketManager
     
     private World _world;
     private Player _userPlayer;
-    private GameUI _ui;
     private SyncPlayerPacket _syncPacket;
     private bool _connected;
     
     public ClientPacketManager(IServiceProvider services)
     {
         _world = services.GetRequiredService<World>();
-        _userPlayer = services.GetRequiredService<PlayerController>().Player;
-        _ui = services.GetRequiredService<GameUI>();
+        _userPlayer = _world.PlayerController.Player;
         
         _world.Map.OnStructureRemoved += structure => RequireSync(GetStructureRemovedPacket(structure));
     }
 
     public void UseUsername(string username)
     {
-        _userPlayer.Name = username;
+        //_userPlayer.Name = username;
     }
     
     public JoinRequestPacket GetJoinRequestPacket()
@@ -58,21 +54,16 @@ public class ClientPacketManager
 
     public async Task OnJoinAccepted(JoinAcceptedPacket packet)
     {
-        _ui.ShowMessage("Join request was accepted! Loading map..");
         
         _userPlayer.Id = packet.PlayerId;
-        Debug.WriteLine($"Client: join request accepted! Your Id is {packet.PlayerId}. Loading map..");
         
-        _ui.ShowLoading();
         await _world.LoadAsync(new Save() {MapSeed = packet.MapSeed});
-        _ui.HideLoading();
         
         Debug.WriteLine($"Client: map loaded");
     }
     
     public void OnJoinRejected(JoinRejectedPacket packet)
     {
-        _ui.ShowMessage($"Join request was rejected : {packet.Reason}");
     }
 
     public void SpawnPlayer(SpawnPlayerPacket packet)
@@ -81,7 +72,6 @@ public class ClientPacketManager
         {
             _userPlayer.Position = new Vector2(packet.X, packet.Y);
             _world.Players.Add(_userPlayer);
-            _ui.ShowMessage("Welcome to server!");
             _connected = true;
 
             _syncPacket = new SyncPlayerPacket()

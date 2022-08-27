@@ -4,18 +4,18 @@ using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using TestGame.Commands;
 using TestGame.Network.Packets;
 
 namespace TestGame.Network;
 
-public class Client
+public class Client : INetworkService
 {
     private NetManager _client;
     private NetPeer _server;
     private NetDataWriter _writer;
     private ClientPacketManager _packetManager;
     private Config _config;
+    private Action<JoinResult> joinCallback;
 
     public Client(IServiceProvider services)
     {
@@ -31,8 +31,9 @@ public class Client
         _packetManager.OnSyncRequired += SendSyncPacketReliable;
     }
 
-    public void Connect(string host, int port, string key, string username)
+    public void Connect(string host, int port, string key, string username, Action<JoinResult> callback)
     {
+        joinCallback = callback;
         Debug.WriteLine($"Client : connecting to server {host}:{port} as {username}");
         _packetManager.UseUsername(username);
         _client.Start(_config.ClientPort);
@@ -51,7 +52,7 @@ public class Client
         }
     }
 
-    public void Disconnect()
+    public void Stop()
     {
         _client.Stop();
         Debug.WriteLine($"Client : disconnected");
@@ -97,6 +98,8 @@ public class Client
 
     public async Task OnJoinAcceptedPacketReceived(JoinAcceptedPacket packet)
     {
+        joinCallback?.Invoke(JoinResult.Accepted);
+        joinCallback = null;
         await _packetManager.OnJoinAccepted(packet);
         
         Debug.WriteLine("Client : sending join packet with player data");
@@ -107,6 +110,8 @@ public class Client
 
     public void OnJoinRejectedPacketReceived(JoinRejectedPacket packet)
     {
+        joinCallback?.Invoke(JoinResult.Rejected);
+        joinCallback = null;
         _packetManager.OnJoinRejected(packet);
     }
 

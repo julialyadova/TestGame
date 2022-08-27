@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+    <Grid ColumnSpacing="8" RowSpacing="8" >
+        <Grid.ColumnsProportions>
+            <Proportion Type="Fill"/>
+        </Grid.ColumnsProportions>
+        <Grid.RowsProportions>
+            <Proportion Type="Part" Value="9" />
+            <Proportion Type="Part" Value="1" />
+        </Grid.RowsProportions>
+        
+        <VerticalStackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextButton Id="host" Text="Host Game" HorizontalAlignment="Center" Width="280" Height="50"/>
+            <TextButton Id="join" Text="Join local game" HorizontalAlignment="Center" Width="280" Height="50"/>
+            <TextButton Id="leave" Visible="false" Text="Leave game" HorizontalAlignment="Center" Width="280" Height="50"/>
+            <TextButton Id="exit" Text="Exit Game" HorizontalAlignment="Center" Width="280" Height="50"/>
+        </VerticalStackPanel>
+    </Grid>
+</Project>

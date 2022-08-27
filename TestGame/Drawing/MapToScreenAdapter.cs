@@ -29,6 +29,11 @@ public class MapToScreenAdapter
         ScreenSize = new Point(config.ScreenWidth, config.ScreenHeight);
         ScreenCenter = new Point(config.ScreenWidth / 2, config.ScreenHeight / 2);
         TileSize = DefaultTileSize;
+        
+        _mapViewport.Width = ScreenSize.X / (TileSize) + 2;
+        _mapViewport.Height = ScreenSize.Y / (TileSize) + 3;
+        _mapViewport.X = 0;
+        _mapViewport.Y = 0;
     }
     
 

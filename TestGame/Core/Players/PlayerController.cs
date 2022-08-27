@@ -1,13 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using TestGame.Core;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Map;
-using TestGame.UserInput;
 
-namespace TestGame.Adapters;
+namespace TestGame.Core.Players;
 
 public class PlayerController
 {
@@ -18,14 +14,9 @@ public class PlayerController
     private Config _config;
     private WorldMap _map;
     
-    public PlayerController(IServiceProvider services)
+    public PlayerController(WorldMap map)
     {
-        _config = services.GetRequiredService<Config>();
-        _map = services.GetRequiredService<World>().Map;
-        
-        Player = new Player();
-        Player.Name = _config.Username;
-        Player.TextureName = _config.PlayerTexture;
+        _map = map;
     }
 
     public void Move(Vector2 direction, float deltaTime)

@@ -5,36 +5,41 @@ using Microsoft.Xna.Framework.Input;
 
 namespace TestGame.UserInput;
 
-public class MousePointerInput : PointerInput
+public class MousePointerInput : IPointerInput
 {
-    protected override Point GetPosition()
+    private MouseInputState _state;
+    public Point GetPosition()
     {
         return Mouse.GetState().Position;
     }
 
-    public override void Update(GameTime gameTime)
+    public bool IsClick()
+    {
+        return _state == MouseInputState.Click;
+    }
+
+    public void UpdateState()
     {
         if (Mouse.GetState().LeftButton == ButtonState.Pressed)
         {
-            if (State == MouseInputState.Hover || State == MouseInputState.Release)
+            if (_state == MouseInputState.Hover || _state == MouseInputState.Release)
             {
-                State = MouseInputState.Click;
-                Click();
+                _state = MouseInputState.Click;
             }
-            else if (State == MouseInputState.Click)
+            else if (_state == MouseInputState.Click)
             {
-                State = MouseInputState.Hold;
+                _state = MouseInputState.Hold;
             }
         }
         else
         {
-            if (State != MouseInputState.Release)
+            if (_state != MouseInputState.Release)
             {
-                State = MouseInputState.Release;
+                _state = MouseInputState.Release;
             }
             else
             {
-                State = MouseInputState.Hover;
+                _state = MouseInputState.Hover;
             }
         }
     }

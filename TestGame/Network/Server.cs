@@ -3,16 +3,19 @@ using System.Diagnostics;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TestGame.Network.Packets;
 
 namespace TestGame.Network;
 
-public class Server
+public class Server : INetworkService
 {
     private NetManager _server;
     private NetDataWriter _writer;
     private ServerPacketManager _packetManager;
     private Config _config;
+    private int _port;
+    private ILogger<Server> _logger;
 
     public Server(IServiceProvider services)
     {
@@ -22,17 +25,25 @@ public class Server
 
         _packetManager = services.GetRequiredService<ServerPacketManager>();
         _config = services.GetRequiredService<Config>();
+        _port = _config.ServerPort;
+        _logger = services.GetRequiredService<ILogger<Server>>();
 
         listener.ConnectionRequestEvent += OnConnectionRequestEvent;
         listener.PeerConnectedEvent += OnPeerConnectedEvent;
         listener.PeerDisconnectedEvent += OnPeerDisconnectedEvent;
         listener.NetworkReceiveEvent += OnNetworkReceiveEvent;
     }
-    
-    public void Start(int port)
+
+    public void SetPort(int port)
     {
-        _server.Start(port);
-        Debug.WriteLine($"Server : listening on port {port}");
+        _port = port;
+        _logger.LogDebug("Server port is set to {Port}", port);
+    }
+    
+    public void Start()
+    {
+        _server.Start(_port);
+        _logger.LogInformation("Server started on port {Port}", _port);
     }
 
     public void Update()
@@ -43,25 +54,31 @@ public class Server
     public void Stop()
     {
         _server.Stop();
-        Debug.WriteLine("Server : stopped");
+        _logger.LogInformation("Server stopped");
     }
 
     private void OnConnectionRequestEvent(ConnectionRequest request)
     {
-        if(_server.ConnectedPeersCount < _config.MaxConnections)
+        _logger.LogInformation("Received connection request form {Address}", request.RemoteEndPoint);
+        if (_server.ConnectedPeersCount < _config.MaxConnections)
+        {
             request.AcceptIfKey(_config.ConnectionKey);
+        }
         else
+        {
             request.Reject();
+            _logger.LogInformation("Connection form {Address} rejected - too many connections.", request.RemoteEndPoint);
+        }
     }
 
     private void OnPeerConnectedEvent(NetPeer peer)
     {
-        Debug.WriteLine("Server : new peer is connecting: " + peer.EndPoint);
+        _logger.LogInformation("Peer {PeerId} {Address} connected",peer.Id, peer.EndPoint);
     }
     
     private void OnPeerDisconnectedEvent(NetPeer peer, DisconnectInfo disconnectinfo)
     {
-        Debug.WriteLine($"Server : peer {peer.Id} {peer.EndPoint} disconnected. { disconnectinfo.Reason.ToString()}");
+        _logger.LogInformation("Peer {PeerId} {Address} disconnected",peer.Id, peer.EndPoint);
         
         //send all players PlayerDisconnected packet
         _writer.Reset();

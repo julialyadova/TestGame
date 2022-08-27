@@ -3,7 +3,6 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TestGame.Adapters;
 using TestGame.Core;
 using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
@@ -14,7 +13,7 @@ using TestGame.Extensions;
 
 namespace TestGame.Drawing;
 
-public class MapDrawer
+public class MapDrawer : GameDrawer
 {
     private readonly int _textureSize = 128;
     private readonly int _textureSideWidth = 16;
@@ -42,14 +41,14 @@ public class MapDrawer
         _textureSidePart = (float)_textureSideWidth / _textureSize;
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw()
     {
+        SpriteBatch.Begin();
         _viewport = _screenAdapter.MapViewport;
-        if (_world.IsLoaded)
-        {
-            DrawSurfaces(spriteBatch);
-            DrawStructures(spriteBatch);
-        }
+
+        DrawSurfaces(SpriteBatch);
+        DrawStructures(SpriteBatch);
+        SpriteBatch.End();
     }
 
     void DrawSurfaces(SpriteBatch spriteBatch)

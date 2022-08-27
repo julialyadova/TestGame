@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
-using TestGame.Adapters;
+using TestGame.Core.Players;
 using TestGame.Drawing;
 using TestGame.UserInput;
 

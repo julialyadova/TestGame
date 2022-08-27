@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TestGame;
-using TestGame.Adapters;
-using TestGame.Commands;
 using TestGame.Core;
-using TestGame.Core.Map;
+using TestGame.Core.Players;
 using TestGame.Drawing;
 using TestGame.Drawing.Repositories;
 using TestGame.Network;
@@ -18,12 +16,9 @@ builder.ConfigureServices(
     {
         services.AddHostedService<Game1>();
 
-        services.AddScoped<Server>();
-        services.AddScoped<Client>();
+        services.AddScoped<NetworkServiceProvider>();
         services.AddScoped<ServerPacketManager>();
         services.AddScoped<ClientPacketManager>();
-
-        services.AddScoped<GameUI>();
 
         services.AddScoped<World>();
         services.AddScoped<PlayerController>();
@@ -35,24 +30,18 @@ builder.ConfigureServices(
         services.AddScoped<MapToScreenAdapter>();
         services.AddScoped<MapDrawer>();
 
-        services.AddScoped<MoveInput, WASDMoveInput>();
-        services.AddScoped<ZoomInput, MouseWheelZoomInput>();
-        services.AddScoped<PointerInput, MousePointerInput>();
-        services.AddScoped<ControlsInput, KeyboardControlsInput>();
+        services.AddScoped<IMoveInput, WASDMoveInput>();
+        services.AddScoped<IZoomInput, MouseWheelZoomInput>();
+        services.AddScoped<IPointerInput, MousePointerInput>();
+        services.AddScoped<IControlsInput, KeyboardControlsInput>();
         
         services.AddScoped<MapInputAdapter>();
         services.AddScoped<PlayerInputAdapter>();
-
-        services.AddScoped<HostGameCommand>();
-        services.AddScoped<JoinGameCommand>();
-        services.AddScoped<DisconnectCommand>();
-        services.AddScoped<ExitGameCommand>();
-        services.AddScoped<LogCommand>();
 
         services.AddSingleton(Config.FromFile("config.json"));
     });
 
 var host = builder.Build();
-host.RunAsync();
-host.WaitForShutdown();
+host.Run();
+//host.WaitForShutdown();
 

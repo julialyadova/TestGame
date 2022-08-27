@@ -6,7 +6,7 @@ using TestGame.Services;
 
 namespace TestGame.Drawing.Repositories;
 
-public class UITexturesRepository : IContentRepository
+public class UITexturesRepository : ContentRepository
 {
     private List<string> textureNames = new ()
     {
@@ -17,14 +17,14 @@ public class UITexturesRepository : IContentRepository
     private Dictionary<string, Texture2D> textures = new ();
     private Texture2D _undefinedTexture;
 
-    public void LoadContent(GraphicsDevice device, ContentManager contentManager)
+    public UITexturesRepository()
     {
-        _undefinedTexture = new Texture2D(device, 1, 1);
+        _undefinedTexture = new Texture2D(GraphicsDevice, 1, 1);
         _undefinedTexture.SetData(new []{Color.Wheat});
         
         foreach (var name in textureNames)
         {
-            textures[name] = contentManager.Load<Texture2D>(name);
+            textures[name] = ContentManager.Load<Texture2D>(name);
         }
     }
 
