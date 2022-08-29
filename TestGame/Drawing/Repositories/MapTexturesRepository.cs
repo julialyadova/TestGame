@@ -10,7 +10,8 @@ public class MapTexturesRepository : ContentRepository
 {
     private List<string> textureNames = new ()
     {
-        "Textures/World/grass",
+        "Textures/Terrain/grass",
+        "Textures/Terrain/podzol",
         "Textures/Structures/wall",
         "Textures/Structures/brick_wall",
         "Textures/Structures/Trees/tree",

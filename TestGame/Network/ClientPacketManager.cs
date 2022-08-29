@@ -18,14 +18,12 @@ public class ClientPacketManager
     public Action<INetSerializable> OnSyncRequired;
     
     private World _world;
-    private Player _userPlayer;
     private SyncPlayerPacket _syncPacket;
     private bool _connected;
     
     public ClientPacketManager(IServiceProvider services)
     {
         _world = services.GetRequiredService<World>();
-        _userPlayer = _world.PlayerController.Player;
         
         _world.Map.OnStructureRemoved += structure => RequireSync(GetStructureRemovedPacket(structure));
     }
@@ -39,7 +37,7 @@ public class ClientPacketManager
     {
         return new JoinRequestPacket()
         {
-            Username = _userPlayer.Name
+            Username = _world.PlayerController.Player.Name
         };
     }
     
@@ -47,15 +45,15 @@ public class ClientPacketManager
     {
         return new JoinPacket()
         {
-            Username = _userPlayer.Name,
-            Texture = _userPlayer.TextureName
+            Username = _world.PlayerController.Player.Name,
+            Texture = _world.PlayerController.Player.TextureName
         };
     }
 
     public async Task OnJoinAccepted(JoinAcceptedPacket packet)
     {
         
-        _userPlayer.Id = packet.PlayerId;
+        _world.PlayerController.Player.Id = packet.PlayerId;
         
         await _world.LoadAsync(new Save() {MapSeed = packet.MapSeed});
         
@@ -68,15 +66,15 @@ public class ClientPacketManager
 
     public void SpawnPlayer(SpawnPlayerPacket packet)
     {
-        if (packet.PlayerId == _userPlayer.Id)
+        if (packet.PlayerId == _world.PlayerController.Player.Id)
         {
-            _userPlayer.Position = new Vector2(packet.X, packet.Y);
-            _world.Players.Add(_userPlayer);
+            _world.PlayerController.Player.Position = new Vector2(packet.X, packet.Y);
+            _world.Players.Add(_world.PlayerController.Player);
             _connected = true;
 
             _syncPacket = new SyncPlayerPacket()
             {
-                PlayerId = _userPlayer.Id
+                PlayerId = _world.PlayerController.Player.Id
             };
         }
         else if (!_world.Players.Exists(packet.PlayerId))
@@ -91,18 +89,18 @@ public class ClientPacketManager
         }
     }
     
-    public SyncPlayerPacket GetSyncPlayerPacket()
+    public SyncPlayerPacket GetSyncPlayerPacket(Player player)
     {
-        _syncPacket.X = _userPlayer.Position.X;
-        _syncPacket.Y = _userPlayer.Position.Y;
-        _syncPacket.DirectionX = _userPlayer.Direction.X;
-        _syncPacket.DirectionY = _userPlayer.Direction.Y;
+        _syncPacket.X = player.Position.X;
+        _syncPacket.Y = player.Position.Y;
+        _syncPacket.DirectionX = player.Direction.X;
+        _syncPacket.DirectionY = player.Direction.Y;
         return _syncPacket;
     }
 
     public void SyncPlayer(SyncPlayerPacket packet)
     {
-        if (packet.PlayerId != _userPlayer.Id && _world.Players.Exists(packet.PlayerId))
+        if (packet.PlayerId != _world.PlayerController.Player.Id && _world.Players.Exists(packet.PlayerId))
             _world.Players.FindById(packet.PlayerId).Position = new Vector2(packet.X, packet.Y);
     }
 
@@ -114,7 +112,7 @@ public class ClientPacketManager
 
     public void OnPlayerDiconnected(PlayerDisconnectedPacket packet)
     {
-        if (packet.PlayerId == _userPlayer.Id)
+        if (packet.PlayerId == _world.PlayerController.Player.Id)
         {
             Disconnect();
         }

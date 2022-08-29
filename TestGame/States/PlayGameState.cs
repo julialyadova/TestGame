@@ -36,6 +36,7 @@ public abstract class PlayGameState : GameState
     public override void Update(float deltaTime)
     {
         Network.Update();
+        Network.SyncPlayer(World.PlayerController.Player);
     }
 
     public override void Draw()

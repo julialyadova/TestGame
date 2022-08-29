@@ -4,6 +4,7 @@ using LiteNetLib;
 using LiteNetLib.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TestGame.Core.Entities.Creatures;
 using TestGame.Network.Packets;
 
 namespace TestGame.Network;
@@ -16,9 +17,11 @@ public class Server : INetworkService
     private Config _config;
     private int _port;
     private ILogger<Server> _logger;
+    private ISyncPacketListener _syncPacketListener;
 
-    public Server(IServiceProvider services)
+    public Server(IServiceProvider services, ISyncPacketListener syncPacketListener)
     {
+        _syncPacketListener = syncPacketListener;
         EventBasedNetListener listener = new EventBasedNetListener();
         _server = new NetManager(listener);
         _writer = new NetDataWriter();
@@ -49,6 +52,13 @@ public class Server : INetworkService
     public void Update()
     {
         _server.PollEvents();
+    }
+
+    public void SendSyncPacket(INetSerializable packet, DeliveryMethod deliveryMethod)
+    {
+        _writer.Reset();
+        _writer.Put(packet);
+        _server.SendToAll(_writer, deliveryMethod);
     }
 
     public void Stop()
@@ -98,10 +108,10 @@ public class Server : INetworkService
                 OnJoinPacketReceived(peer, reader.Get<JoinPacket>());
                 break;
             case PacketType.SyncPlayer:
-                SendPacketToOtherPlayers(peer,reader.Get<SyncPlayerPacket>(), DeliveryMethod.Unreliable);
+                OnSyncPacketReceived(peer,reader.Get<SyncPlayerPacket>(), DeliveryMethod.Unreliable);
                 break;
             case PacketType.StructureRemoved:
-                SendPacketToOtherPlayers(peer, reader.Get<StructureRemovedPacket>(), DeliveryMethod.ReliableUnordered);
+                OnSyncPacketReceived(peer, reader.Get<StructureRemovedPacket>(), DeliveryMethod.ReliableUnordered);
                 break;
         }
         reader.Recycle();
@@ -136,7 +146,7 @@ public class Server : INetworkService
         _server.SendToAll(_writer, DeliveryMethod.ReliableOrdered);
     }
 
-    private void SendPacketToOtherPlayers(NetPeer sender, INetSerializable packet, DeliveryMethod deliveryMethod)
+    private void OnSyncPacketReceived(NetPeer sender, INetSerializable packet, DeliveryMethod deliveryMethod)
     {
         _writer.Reset();
         _writer.Put(packet);

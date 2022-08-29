@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using TestGame.Core.Entities.Creatures;
 using TestGame.Network.Packets;
 
 namespace TestGame.Network;
@@ -16,9 +17,11 @@ public class Client : INetworkService
     private ClientPacketManager _packetManager;
     private Config _config;
     private Action<JoinResult> joinCallback;
+    private ISyncPacketListener _syncPacketListener;
 
-    public Client(IServiceProvider services)
+    public Client(IServiceProvider services, ISyncPacketListener syncPacketListener)
     {
+        _syncPacketListener = syncPacketListener;
         _packetManager = services.GetRequiredService<ClientPacketManager>();
         _config = services.GetRequiredService<Config>();
         
@@ -43,13 +46,13 @@ public class Client : INetworkService
     public void Update()
     {
         _client.PollEvents();
+    }
 
-        if (_packetManager.PlayerConnected)
-        {
-            _writer.Reset();
-            _writer.Put(_packetManager.GetSyncPlayerPacket());
-            _server.Send(_writer, DeliveryMethod.Unreliable);
-        }
+    public void SendSyncPacket(INetSerializable packet, DeliveryMethod deliveryMethod)
+    {
+        _writer.Reset();
+        _writer.Put(packet);
+        _server.Send(_writer, deliveryMethod);
     }
 
     public void Stop()
@@ -122,7 +125,7 @@ public class Client : INetworkService
 
     public void OnSyncPlayerPacketReceived(SyncPlayerPacket packet)
     {
-        _packetManager.SyncPlayer(packet);
+        _syncPacketListener.OnSyncPlayerPacketReceived(packet);
     }
     
     private void OnStructureRemovedPacketReceived(StructureRemovedPacket packet)

@@ -16,7 +16,7 @@ public class WorldMap
     public readonly Rectangle Bounds;
     public Point SpawnPoint;
     public List<Structure>[] Structures;
-    public Surface[,] SurfacesMap;
+    public Terrain Terrain;
     public Point Pointer = Point.Zero;
     public Action<Structure> OnStructureRemoved;
 
@@ -27,7 +27,7 @@ public class WorldMap
     {
         Structures = new List<Structure>[Size.Y];
         _structuresMap = new Structure[Size.X,Size.Y];
-        SurfacesMap = new Surface[Size.X, Size.Y];
+        Terrain = new Terrain(Size);
         SpawnPoint = Size.Divide(2);
         Bounds = new Rectangle(Point.Zero, Size);
     }
@@ -36,7 +36,7 @@ public class WorldMap
     {
         Structures = new List<Structure>[Size.Y];
         _structuresMap = new Structure[Size.X,Size.Y];
-        SurfacesMap = new Surface[Size.X, Size.Y];
+        Terrain = new Terrain(Size);
         new MapGenerator().Generate(this, seed);
     }
     

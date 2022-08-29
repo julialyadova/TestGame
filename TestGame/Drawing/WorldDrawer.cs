@@ -59,7 +59,7 @@ public class MapDrawer : GameDrawer
         for (int mapX = _viewport.Left; mapX < _viewport.Right; mapX++)
         for (int mapY = _viewport.Top; mapY < _viewport.Bottom; mapY++)
         {
-            var surface = _map.SurfacesMap[mapX, mapY];
+            var surface = _map.Terrain.GetSurfaceAt(new Point(mapX,mapY));
             _drawRect.Location = _screenAdapter.GetScreenPosition(new Point(mapX, mapY));
             spriteBatch.Draw(_textures.GetTexture(surface.TextureName), _drawRect, Color.White );
         }

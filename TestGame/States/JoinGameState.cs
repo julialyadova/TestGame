@@ -48,6 +48,8 @@ public class JoinGameState : LoadGameState
     {
         base.Update(deltaTime);
         
+        _network.Update();
+        
         if (_world.IsLoaded)
         {
             _logger.LogInformation("Map loaded");
