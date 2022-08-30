@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Base;
@@ -17,6 +18,7 @@ public class WorldMap
     public Action<Structure> OnStructureRemoved;
 
     private Structure[,] _structuresMap;
+    private List<Structure> _structures = new();
     private readonly Point[] _neighbours = { new(-1, 0), new(1, 0), new(0, 1), new(1, 0) };
     
     public WorldMap(Point size)
@@ -28,6 +30,11 @@ public class WorldMap
         SpawnPoint = Size.Divide(2);
     }
 
+
+    public IEnumerable<Entity> GetEntities()
+    {
+        return _structures;
+    }
 
     public void Clear()
     {
@@ -57,6 +64,7 @@ public class WorldMap
                 return;
         }
         
+        _structures.Add(structure);
         structure.Position = position.ToVector2();
 
 
@@ -101,7 +109,8 @@ public class WorldMap
         {
             _structuresMap[(int)structure.Position.X + x, (int)structure.Position.Y + y] = null;
         }
-        
+
+        _structures.Remove(structure);
         OnStructureRemoved?.Invoke(structure);
     }
 

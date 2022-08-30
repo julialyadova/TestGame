@@ -29,7 +29,7 @@ public class MapGenerator
             position.Y = y;
             
             map.Terrain.SetSurface(SurfaceType.Grass, position);
-            if (random.Next(0, 10) == 1)
+            if (random.Next(0, 40) == 1)
             {
                 map.Build(new Tree(), position);
                 map.Terrain.SetSurface(SurfaceType.Podzol, position);
@@ -41,7 +41,7 @@ public class MapGenerator
             }
             Progress += percentsPerTile;
         }
-
+        map.SpawnPoint = Point.Zero;
         Done = true;
     }
 

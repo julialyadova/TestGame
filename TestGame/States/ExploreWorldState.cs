@@ -32,6 +32,6 @@ public class ExploreWorldState : PlayGameState
 
     public override void Update(float deltaTime)
     {
-        //_screenAdapter.CenterMap(World.PlayerController.Player.Position);
+        base.Update(deltaTime);
     }
 }

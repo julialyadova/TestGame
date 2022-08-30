@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
+using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Entities.Structures;
 using TestGame.Core.Map;
@@ -32,6 +33,15 @@ public class World
         _logger.LogDebug("Clicked at {ClickPosition}", position);
         if (IsLoaded)
             Map.Build(new Wall(1), position);
+    }
+
+    public void Animate()
+    {
+        foreach (var entity in Map.GetEntities())
+        {
+            if (entity is IAnimated animatedEntity)
+                animatedEntity.Animate();
+        }
     }
 
     public void SpawnMainPlayer(Player player)

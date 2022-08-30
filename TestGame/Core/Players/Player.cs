@@ -14,8 +14,9 @@ public class Player : Entity
 
     public Player()
     {
-        DrawOrigin = new Vector2(-1f, -4);
+        DrawOrigin = new Vector2(0, 0);
         DrawSize = new Vector2(2, 4);
+        Anchor = new Vector2(0.5f, 1);
     }
 
     public bool LooksRight()

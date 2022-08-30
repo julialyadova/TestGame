@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Base;
-using Vector2 = System.Numerics.Vector2;
 
 namespace TestGame.Core.Entities.Structures;
 
@@ -12,6 +11,7 @@ public class Farm : Structure
     public Farm()
     {
         DrawOrigin = Vector2.Zero;
+        Anchor = Vector2.Zero;
         MapSize = new Point(3, 3);
         DrawSize = MapSize.ToVector2();
         TextureName = "Textures/Structures/Farm/farm";

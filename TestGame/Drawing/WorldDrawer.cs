@@ -85,6 +85,8 @@ public class MapDrawer : GameDrawer
                 if (structure == null || processedEntities.Contains(structure))
                     continue;
 
+                if (structure is IAnimated animated)
+                    animated.Animate();
                 DrawEntity(structure);
                 processedEntities.Add(structure);
             }
@@ -122,7 +124,7 @@ public class MapDrawer : GameDrawer
 
     private void DrawPlayerName(Player player)
     {
-        DrawString($"{player.Name}\nx:{player.Position.X:0.0}\ny:{player.Position.Y:0.0}", player.Position + player.DrawOrigin);
+        DrawString($"{player.Name}\nx:{player.Position.X:0.0}\ny:{player.Position.Y:0.0}", player.Position - player.DrawSize);
     }
 
     private void DrawEntity(Entity entity, Texture2D texture = null)
@@ -135,7 +137,14 @@ public class MapDrawer : GameDrawer
             ScreenAdapter.GetScreenVector(entity.Position + entity.DrawOrigin).ToPoint(),
             ScreenAdapter.GetScreenVector(entity.DrawSize).ToPoint()
         );
-        SpriteBatch.Draw(texture, drawRect, Color.White);
+        SpriteBatch.Draw(texture,
+            drawRect, 
+            null,
+            Color.White,
+            entity.Rotation,
+            entity.Anchor * texture.Bounds.Size.ToVector2(),
+            SpriteEffects.None,
+            0);
     }
 
     private void Draw(Texture2D texture, Rectangle mapRect)
