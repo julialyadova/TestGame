@@ -20,7 +20,7 @@ public class World
     public World(ILogger<World> logger)
     {
         _logger = logger;
-        Map = new ();
+        Map = new (new Point(1000,1000));
         Players = new();
         PlayerController = new PlayerController(Map);
         _logger.LogDebug("Initialized");
@@ -33,14 +33,6 @@ public class World
             Map.Build(new Wall(1), position);
     }
 
-    public async Task Generate()
-    {
-        IsLoaded = false;
-        Players.Clear();
-        await Task.Run(() => new MapGenerator().Generate(Map));
-        IsLoaded = true;
-    }
-    
     public void SpawnMainPlayer(Player player)
     {
         PlayerController.Player = player;
@@ -61,13 +53,6 @@ public class World
         return PlayerController.Player;
     }
 
-    public async Task LoadAsync(Save save)
-    {
-        IsLoaded = false;
-        await Task.Run(() => Map.Load(save.MapSeed));
-        IsLoaded = true;
-    }
-    
     public void Quit()
     {
         IsLoaded = false;

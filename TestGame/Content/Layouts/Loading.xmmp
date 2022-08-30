@@ -1,4 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
-    <Label Id="loading" Text="loading" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <VerticalStackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Label Id="loading" Text="loading..." Width="80"/>
+        <Label Id="message" Text="92.05%" TextAlign="Center" Width="70"/>
+    </VerticalStackPanel>
 </Project>

@@ -55,7 +55,7 @@ public class ClientPacketManager
         
         _world.PlayerController.Player.Id = packet.PlayerId;
         
-        await _world.LoadAsync(new Save() {MapSeed = packet.MapSeed});
+        //await _world.LoadAsync(new Save() {MapSeed = packet.MapSeed});
         
         Debug.WriteLine($"Client: map loaded");
     }

@@ -8,12 +8,12 @@ public abstract class LoadGameState : GameState
 {
     private Desktop _desktop;
     private Label _loadingLabel;
+    private Label _messageLabel;
     private float time = 0;
     private int dotsCount = 1;
 
     public LoadGameState(IServiceProvider services)
     {
-
         Project project;
         using (StreamReader reader = new StreamReader("Content/Layouts/Loading.xmmp"))
         {
@@ -24,6 +24,7 @@ public abstract class LoadGameState : GameState
         _desktop.Root = project.Root;
         
         _loadingLabel = _desktop.Root.FindWidgetById("loading") as Label;
+        _messageLabel = _desktop.Root.FindWidgetById("message") as Label;
     }
     
     public override void Update(float deltaTime)
@@ -34,6 +35,11 @@ public abstract class LoadGameState : GameState
             time = 0;
             AnimateLoading();
         }
+    }
+
+    protected void ShowLoadingMessage(string message)
+    {
+        _messageLabel.Text = message;
     }
 
     public override void HandleInputs(float deltaTime) { }

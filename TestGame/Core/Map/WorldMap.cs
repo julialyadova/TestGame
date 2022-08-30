@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Structures;
@@ -11,10 +10,10 @@ namespace TestGame.Core.Map;
 
 public class WorldMap
 {
-    public int Seed;
-    public readonly Point Size = new(50, 50);
-    public readonly Rectangle Bounds;
-    public Point SpawnPoint;
+    public int Seed; //todo remove to generation info class
+    public readonly Point Size;
+    private Rectangle _bounds;
+    public Point SpawnPoint; //todo remove to World Class
     public List<Structure>[] Structures;
     public Terrain Terrain;
     public Point Pointer = Point.Zero;
@@ -23,26 +22,28 @@ public class WorldMap
     private Structure[,] _structuresMap;
     private readonly Point[] _neighbours = { new(-1, 0), new(1, 0), new(0, 1), new(1, 0) };
     
-    public WorldMap()
+    public WorldMap(Point size)
     {
+        Size = size;
+        _bounds = new Rectangle(Point.Zero, Size);
+
         Structures = new List<Structure>[Size.Y];
         _structuresMap = new Structure[Size.X,Size.Y];
         Terrain = new Terrain(Size);
         SpawnPoint = Size.Divide(2);
-        Bounds = new Rectangle(Point.Zero, Size);
     }
 
-    public void Load(int seed)
+
+    public void Clear()
     {
         Structures = new List<Structure>[Size.Y];
         _structuresMap = new Structure[Size.X,Size.Y];
         Terrain = new Terrain(Size);
-        new MapGenerator().Generate(this, seed);
     }
     
     public bool CanWalkTrough(Point position)
     {
-        if (position.X <= 0 || position.X >= Size.X || position.Y <= 0 || position.Y >= Size.Y)
+        if (!_bounds.Contains(position))
             return false;
         
         return _structuresMap[position.X, position.Y] == null || _structuresMap[position.X, position.Y].CanWalkThrough;
@@ -82,7 +83,7 @@ public class WorldMap
 
     public Structure GetStructureAt(Point position)
     {
-        if (Bounds.Contains(position))
+        if (_bounds.Contains(position))
             return _structuresMap[position.X, position.Y];
         else
             return null;
