@@ -7,8 +7,8 @@ namespace TestGame.Drawing;
 
 public class Camera
 {
-    private const float MinZoom = 0.1f;
-    private const float MaxZoom = 10f;
+    private const float MinZoom = 0.75f;
+    private const float MaxZoom = 1f;
 
     private float _zoom;
     private Vector2 _position;
@@ -27,7 +27,16 @@ public class Camera
 
     public Rectangle GetViewport(GraphicsDevice graphicsDevice)
     {
-        return new Rectangle(_position.ToPoint() - graphicsDevice.Viewport.Bounds.Size.Divide(2), graphicsDevice.Viewport.Bounds.Size);
+        var screenSize = graphicsDevice.Viewport.Bounds.Size;
+        var margin = screenSize.ToVector2() * (2 - _zoom);
+        return new Rectangle
+        (
+            (int)(_position.X - margin.X / 2),
+            (int)(_position.Y - margin.Y / 2),
+            (int)(screenSize.X + margin.X),
+            (int)(screenSize.Y + margin.Y)
+        );
+        return new Rectangle((_position.ToPoint() - graphicsDevice.Viewport.Bounds.Size.Divide(2)), graphicsDevice.Viewport.Bounds.Size);
     }
 
     public void Move(Vector2 direction)

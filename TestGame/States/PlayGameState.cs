@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using TestGame.Core;
 using TestGame.Drawing;
 using TestGame.Network;
+using TestGame.UserInput;
 
 namespace TestGame.States;
 
@@ -13,6 +14,7 @@ public abstract class PlayGameState : GameState
     protected NetworkServiceProvider Network;
     protected World World;
     protected Camera Camera;
+    private IZoomInput ZoomInput;
 
     public PlayGameState(IServiceProvider services)
     {
@@ -20,6 +22,7 @@ public abstract class PlayGameState : GameState
         Network = services.GetRequiredService<NetworkServiceProvider>();
         World = services.GetRequiredService<World>();
         Camera = new Camera();
+        ZoomInput = services.GetRequiredService<IZoomInput>();
     }
 
     public override void Enter()
@@ -32,6 +35,12 @@ public abstract class PlayGameState : GameState
         {
             Network.Stop();
             SetState(MainMenuState);
+        }
+
+        ZoomInput.UpdateState();
+        if (ZoomInput.IsZooming())
+        {
+            Camera.Zoom(ZoomInput.GetZoomValue() / 5000f);
         }
     }
 

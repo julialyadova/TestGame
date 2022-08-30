@@ -19,7 +19,7 @@ namespace TestGame.Drawing;
 
 public class MapDrawer : GameDrawer
 {
-    private readonly Rectangle _margins = new Rectangle(-10, 0, 20, 10);
+    private readonly Rectangle _margins = new Rectangle(-10, -6, 20, 10);
     private MapTexturesRepository _textures;
     private PlayerTexturesRepository _playerTextures;
     private FontsRepository _fonts;
@@ -37,8 +37,13 @@ public class MapDrawer : GameDrawer
     {
         SetMapViewport(camera);
         
-        SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-            null,null, null, null,
+        SpriteBatch.Begin(
+            SpriteSortMode.Deferred,
+            BlendState.AlphaBlend,
+            null,
+            null,
+            null,
+            null,
             camera.GetTransformMatrix(SpriteBatch.GraphicsDevice));
 
         DrawTerrain(world.Map.Terrain);
