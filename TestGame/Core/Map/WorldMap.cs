@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Base;
@@ -11,12 +10,10 @@ namespace TestGame.Core.Map;
 public class WorldMap
 {
     public int Seed; //todo remove to generation info class
-    public readonly Point Size;
-    private Rectangle _bounds;
+    public Point Size { get; }
+    public Rectangle Bounds { get;}
     public Point SpawnPoint; //todo remove to World Class
-    public List<Structure>[] Structures;
     public Terrain Terrain;
-    public Point Pointer = Point.Zero;
     public Action<Structure> OnStructureRemoved;
 
     private Structure[,] _structuresMap;
@@ -25,9 +22,7 @@ public class WorldMap
     public WorldMap(Point size)
     {
         Size = size;
-        _bounds = new Rectangle(Point.Zero, Size);
-
-        Structures = new List<Structure>[Size.Y];
+        Bounds = new Rectangle(Point.Zero, Size);
         _structuresMap = new Structure[Size.X,Size.Y];
         Terrain = new Terrain(Size);
         SpawnPoint = Size.Divide(2);
@@ -36,14 +31,13 @@ public class WorldMap
 
     public void Clear()
     {
-        Structures = new List<Structure>[Size.Y];
         _structuresMap = new Structure[Size.X,Size.Y];
         Terrain = new Terrain(Size);
     }
     
     public bool CanWalkTrough(Point position)
     {
-        if (!_bounds.Contains(position))
+        if (!Bounds.Contains(position))
             return false;
         
         return _structuresMap[position.X, position.Y] == null || _structuresMap[position.X, position.Y].CanWalkThrough;
@@ -52,24 +46,22 @@ public class WorldMap
     public void Build(Structure structure, Point position)
     {
         if (position.X < 0 || position.Y < 0 
-            || position.X + structure.Size.X >= Size.X 
-            || position.Y + structure.Size.Y >= Size.Y)
+            || position.X + structure.MapSize.X >= Size.X 
+            || position.Y + structure.MapSize.Y >= Size.Y)
             return;
         
-        for (int x = 0; x < structure.Size.X ; x++)
-        for (int y = 0; y < structure.Size.Y; y++)
+        for (int x = 0; x < structure.MapSize.X ; x++)
+        for (int y = 0; y < structure.MapSize.Y; y++)
         {
             if (_structuresMap[position.X + x, position.Y + y] != null )
                 return;
         }
-
-        Structures[position.Y] ??= new List<Structure>();
-        Structures[position.Y].Add(structure);
-        structure.Position = position;
+        
+        structure.Position = position.ToVector2();
 
 
-        for (int x = 0; x < structure.Size.X ; x++)
-        for (int y = 0; y < structure.Size.Y; y++)
+        for (int x = 0; x < structure.MapSize.X ; x++)
+        for (int y = 0; y < structure.MapSize.Y; y++)
         {
             _structuresMap[position.X + x, position.Y + y] = structure;
         }
@@ -83,7 +75,7 @@ public class WorldMap
 
     public Structure GetStructureAt(Point position)
     {
-        if (_bounds.Contains(position))
+        if (Bounds.Contains(position))
             return _structuresMap[position.X, position.Y];
         else
             return null;
@@ -104,11 +96,10 @@ public class WorldMap
         
         structure.OnDestroy();
         
-        Structures[structure.Position.Y].Remove(structure);
-        for (int x = 0; x < structure.Size.X ; x++)
-        for (int y = 0; y < structure.Size.Y; y++)
+        for (int x = 0; x < structure.MapSize.X ; x++)
+        for (int y = 0; y < structure.MapSize.Y; y++)
         {
-            _structuresMap[structure.Position.X + x, structure.Position.Y + y] = null;
+            _structuresMap[(int)structure.Position.X + x, (int)structure.Position.Y + y] = null;
         }
         
         OnStructureRemoved?.Invoke(structure);
@@ -118,7 +109,7 @@ public class WorldMap
     {
         foreach (var point in _neighbours)
         {
-            if (_structuresMap[wall.Position.X + point.X, wall.Position.Y + point.Y] is Wall neighbour)
+            if (_structuresMap[(int)wall.Position.X + point.X, (int)wall.Position.Y + point.Y] is Wall neighbour)
                 wall.Connect(neighbour);
         }
     }

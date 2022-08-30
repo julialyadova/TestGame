@@ -18,22 +18,22 @@ public class Wall : Structure
 
     public void Connect(Wall neighbour)
     {
-        if (neighbour.Position == Position.RightNeighbour())
+        if (neighbour.Position.ToPoint() == Position.ToPoint().RightNeighbour())
         {
             Right = neighbour;
             neighbour.Left = this;
         }
-        else if (neighbour.Position == Position.LeftNeighbour())
+        else if (neighbour.Position.ToPoint() == Position.ToPoint().LeftNeighbour())
         {
             Left = neighbour;
             neighbour.Right = this; 
         }
-        else if (neighbour.Position == Position.TopNeighbour())
+        else if (neighbour.Position.ToPoint() == Position.ToPoint().TopNeighbour())
         {
             Top = neighbour;
             neighbour.Bottom = this; 
         }
-        else if (neighbour.Position == Position.BottomNeighbour())
+        else if (neighbour.Position.ToPoint() == Position.ToPoint().BottomNeighbour())
         {
             Bottom = neighbour;
             neighbour.Top = this; 

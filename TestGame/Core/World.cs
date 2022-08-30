@@ -6,6 +6,7 @@ using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Entities.Structures;
 using TestGame.Core.Map;
 using TestGame.Core.Players;
+using TestGame.Drawing;
 
 namespace TestGame.Core;
 

@@ -31,11 +31,9 @@ public class Game1 : Game, IHostedService
 
     protected override void Initialize()
     {
-        // _graphics.PreferredBackBufferWidth = _config.ScreenWidth;
-        //_graphics.PreferredBackBufferHeight = _config.ScreenHeight;
+        _graphics.PreferredBackBufferWidth = 1280;
+        _graphics.PreferredBackBufferHeight = 720;
         _graphics.ApplyChanges();
-
-
         base.Initialize();
     }
 
@@ -47,6 +45,7 @@ public class Game1 : Game, IHostedService
         ContentRepository.ContentManager = Content;
         GameDrawer.SpriteBatch = _spriteBatch;
         GameState.LoadContent(_services);
+        
     }
 
     protected override void Update(GameTime gameTime)

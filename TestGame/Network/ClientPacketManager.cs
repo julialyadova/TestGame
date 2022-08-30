@@ -138,8 +138,8 @@ public class ClientPacketManager
     {
         return new StructureRemovedPacket()
         {
-            X = structure.Position.X,
-            Y = structure.Position.Y
+            X = (int)structure.Position.X,
+            Y = (int)structure.Position.Y
         };
     }
 }

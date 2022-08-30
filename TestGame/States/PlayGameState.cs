@@ -12,12 +12,14 @@ public abstract class PlayGameState : GameState
     private MapDrawer _drawer;
     protected NetworkServiceProvider Network;
     protected World World;
+    protected Camera Camera;
 
     public PlayGameState(IServiceProvider services)
     {
         _drawer = services.GetRequiredService<MapDrawer>();
         Network = services.GetRequiredService<NetworkServiceProvider>();
         World = services.GetRequiredService<World>();
+        Camera = new Camera();
     }
 
     public override void Enter()
@@ -41,7 +43,7 @@ public abstract class PlayGameState : GameState
 
     public override void Draw()
     {
-        _drawer.Draw();
+        _drawer.Draw(World, Camera);
     }
     
     public override void DrawUI()

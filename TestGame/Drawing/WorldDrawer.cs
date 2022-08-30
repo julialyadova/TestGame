@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
+using FontStashSharp;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,6 +11,7 @@ using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Entities.Structures;
 using TestGame.Core.Map;
+using TestGame.Core.Players;
 using TestGame.Drawing.Repositories;
 using TestGame.Extensions;
 
@@ -15,218 +19,127 @@ namespace TestGame.Drawing;
 
 public class MapDrawer : GameDrawer
 {
-    private readonly int _textureSize = 128;
-    private readonly int _textureSideWidth = 16;
-    private readonly float _textureSidePart;
-    private readonly int _maxStructSize = 10;
-    private World _world;
-    private WorldMap _map;
-    private MapToScreenAdapter _screenAdapter;
+    private readonly Rectangle _margins = new Rectangle(-10, 0, 20, 10);
     private MapTexturesRepository _textures;
     private PlayerTexturesRepository _playerTextures;
     private FontsRepository _fonts;
-    
-    private Rectangle _drawRect = Rectangle.Empty;
-    private Rectangle _sourceRect = Rectangle.Empty;
+
     private Rectangle _viewport = Rectangle.Empty;
 
     public MapDrawer(IServiceProvider services)
     {
-        _world = services.GetRequiredService<World>();
-        _map = _world.Map;
-        _screenAdapter = services.GetRequiredService<MapToScreenAdapter>();
         _textures = services.GetRequiredService<MapTexturesRepository>();
         _playerTextures = services.GetRequiredService<PlayerTexturesRepository>();
         _fonts = services.GetRequiredService<FontsRepository>();
-        _textureSidePart = (float)_textureSideWidth / _textureSize;
     }
 
-    public void Draw()
+    public void Draw(World world, Camera camera)
     {
-        SpriteBatch.Begin();
-        _viewport = _screenAdapter.MapViewport;
+        SetMapViewport(camera);
+        
+        SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+            null,null, null, null,
+            camera.GetTransformMatrix(SpriteBatch.GraphicsDevice));
 
-        DrawSurfaces(SpriteBatch);
-        DrawStructures(SpriteBatch);
+        DrawTerrain(world.Map.Terrain);
+        DrawEntities(world);
+        
         SpriteBatch.End();
     }
 
-    void DrawSurfaces(SpriteBatch spriteBatch)
+    private void SetMapViewport(Camera camera)
     {
-        _drawRect.Width = _screenAdapter.TileSize;
-        _drawRect.Height = _screenAdapter.TileSize;
-        
+        var screenViewport = camera.GetViewport(SpriteBatch.GraphicsDevice);
+        _viewport = ScreenAdapter.GetMapRect(screenViewport);
+        _viewport.X += _margins.X;
+        _viewport.Y += _margins.Y;
+        _viewport.Width += _margins.Width;
+        _viewport.Height += _margins.Height;
+    }
+
+    private void DrawTerrain(Terrain terrain)
+    {
         for (int mapX = _viewport.Left; mapX < _viewport.Right; mapX++)
         for (int mapY = _viewport.Top; mapY < _viewport.Bottom; mapY++)
         {
-            var surface = _map.Terrain.GetSurfaceAt(new Point(mapX,mapY));
-            _drawRect.Location = _screenAdapter.GetScreenPosition(new Point(mapX, mapY));
-            spriteBatch.Draw(_textures.GetTexture(surface.TextureName), _drawRect, Color.White );
+            var surface = terrain.GetSurfaceAt(new Point(mapX,mapY));
+            if (surface == null)
+                continue;
+            Draw(_textures.GetTexture(surface.TextureName), new Rectangle(mapX, mapY, 1, 1));
         }
     }
 
-    private void DrawStructures(SpriteBatch spriteBatch)
+    private void DrawEntities(World world)
     {
-        for (int level = _viewport.Y; level < Math.Min(_viewport.Bottom + _maxStructSize, _map.Size.Y); level++)
+        var processedEntities = new HashSet<Entity>();
+        for (int mapY = _viewport.Top; mapY < _viewport.Bottom; mapY++)
         {
-            if (_map.Structures[level] == null)
-                continue;
-
-            foreach (var structure in _map.Structures[level])
+            for (int mapX = _viewport.Left; mapX < _viewport.Right; mapX++)
             {
-                if (structure.Position.X < _viewport.X - _maxStructSize || structure.Position.X >= _viewport.Right)
+                var structure = world.Map.GetStructureAt(new Point(mapX, mapY));
+                if (structure == null || processedEntities.Contains(structure))
                     continue;
 
-                UpdateDrawRectForStructure(structure);
-    
-                if (structure is Wall wall)
-                    DrawWall(wall, spriteBatch);
-                else if (structure is Farm farm)
-                    DrawFarm(farm, spriteBatch);
-                else
-                    spriteBatch.Draw(_textures.GetTexture(structure.TextureName), _drawRect, Color.White );
+                DrawEntity(structure);
+                processedEntities.Add(structure);
             }
-            
-            DrawPlayersAtY(level, spriteBatch);
+            DrawPlayersAtY(world.Players, mapY);
         }
     }
+    
 
-    private void UpdateDrawRectForStructure(Structure structure)
+    private void DrawPlayersAtY(GamePlayers players, int y)
     {
-        _drawRect.Location = _screenAdapter.GetScreenPosition(new Point(
-            structure.Position.X,
-            structure.Position.Y - structure.Height));
-        _drawRect.Height = _screenAdapter.GetScreenLength(structure.Size.Y + structure.Height);
-        _drawRect.Width = _screenAdapter.GetScreenLength(structure.Size.X);
-    }
-
-    private void DrawPlayersAtY(int y, SpriteBatch spriteBatch)
-    {
-        foreach (var player in _world.Players
+        foreach (var player in players
                      .Where(p => (int)p.Position.Y == y)
                      .Where(p => p.Position.X > _viewport.Left && p.Position.X < _viewport.Right)
                      .OrderBy(p => p.Position.Y))
         {
-            DrawPlayer(player, spriteBatch);
+            DrawPlayer(player);
         }
     }
 
-    private void DrawFarm(Farm farm, SpriteBatch spriteBatch)
+    private void DrawPlayer(Player player)
     {
-        spriteBatch.Draw(_textures.GetTexture(farm.TextureName), _drawRect, Color.White );
-        var connectionWidth = _screenAdapter.GetScreenLength(_textureSidePart);
-
-        var topNeighbour = farm.Position.Y != 0 && _map.GetStructureAt(farm.Position.TopNeighbour()) is Farm;
-        if (topNeighbour)
-            DrawFarmYConnection(farm, connectionWidth, spriteBatch);
-        
-        var leftNeighbour = farm.Position.X != 0 && _map.GetStructureAt(farm.Position.LeftNeighbour()) is Farm;
-        if (leftNeighbour)
-            DrawFarmXConnection(farm, connectionWidth, spriteBatch);
-
-        if (leftNeighbour && topNeighbour && _map.GetStructureAt(farm.Position.TopLeftNeighbour()) is Farm)
-            DrawFarmCornerConnection(farm, connectionWidth, spriteBatch);
-    }
-
-    private void DrawFarmYConnection(Farm farm, int connectionHeight, SpriteBatch spriteBatch)
-    {
-        var rect = new Rectangle(
-            _drawRect.X,
-            _drawRect.Y - connectionHeight,
-            _screenAdapter.TileSize,
-            connectionHeight * 2);
-        spriteBatch.Draw(_textures.GetTexture(farm.YConnectionTexture), rect, Color.White );
-    }
-    
-    private void DrawFarmXConnection(Farm farm, int connectionWidth, SpriteBatch spriteBatch)
-    {
-        var rect = new Rectangle(
-            _drawRect.X - connectionWidth,
-            _drawRect.Y,
-            connectionWidth * 2,
-            _screenAdapter.TileSize);
-        spriteBatch.Draw(_textures.GetTexture(farm.XConnectionTexture), rect, Color.White );
-    }
-    
-    private void DrawFarmCornerConnection(Farm farm, int connectionWidth, SpriteBatch spriteBatch)
-    {
-        var rect = new Rectangle(
-            _drawRect.X - connectionWidth,
-            _drawRect.Y - connectionWidth,
-            connectionWidth * 2,
-            connectionWidth * 2);
-        spriteBatch.Draw(_textures.GetTexture(farm.CornerTexture), rect, Color.White );
-    }
-
-    private void DrawWall(Wall wall, SpriteBatch spriteBatch)
-    {
-        _sourceRect.Width = _textureSize;
-        _sourceRect.Height = _textureSize * (wall.Height + 1);
-        if (wall.Left != null && wall.Right != null)
-            _sourceRect.X = _textureSize / 2;
-        else if (wall.Right == null)
-            _sourceRect.X = _textureSize;
-        else if (wall.Left == null)
-            _sourceRect.X = 0;
-        else
-            _sourceRect.X = _textureSize * 2;
-        
-        spriteBatch.Draw(_textures.GetTexture(wall.TextureName), _drawRect, _sourceRect, Color.White );
-    }
-
-    private void DrawPlayer(Player player, SpriteBatch spriteBatch)
-    {
-        _drawRect.Location = _screenAdapter.GetScreenPosition(player.Position - new Vector2(0.5f, 2f)).ToPoint();
-        _drawRect.Size = (player.Size * _screenAdapter.TileSize).ToPoint();
-
         var playerTexture = _playerTextures.GetTexture(player.TextureName);
-        if (player.LooksLeft())
-            spriteBatch.Draw(
-                playerTexture.Side,
-                _drawRect,
-                playerTexture.Side.Bounds,
-                Color.White,
-                0,
-                new Vector2(0.5f, 0),
-                SpriteEffects.FlipHorizontally,
-                1);
-        else if (player.LooksRight())
-            spriteBatch.Draw(playerTexture.Side, _drawRect, Color.White);
-        else if (player.LooksForward())
-            spriteBatch.Draw(playerTexture.Front, _drawRect, Color.White);
-        else if (player.LooksBack())
-            spriteBatch.Draw(playerTexture.Back, _drawRect, Color.White);
-
-        DrawPlayerName(player, spriteBatch);
-    }
-
-    private void DrawPlayerName(Player player, SpriteBatch spriteBatch)
-    {
-        spriteBatch.DrawString(
-            _fonts.MainFont,
-            player.Name, 
-            _drawRect.Location.ToVector2(),
-            Color.White, 
-            0f, 
-            new Vector2(player.Name.Length * 5,16), 
-            new Vector2(1,1),
-            SpriteEffects.None,
-            1);
-    }
-
-    private void DrawPointer(SpriteBatch spriteBatch)
-    {
-        _drawRect.Location = _screenAdapter.GetScreenPosition(_map.Pointer);
-        _drawRect.Width = _screenAdapter.TileSize;
-        _drawRect.Height = _screenAdapter.TileSize;
-        if (_map.GetStructureAt(_map.Pointer) != null)
-        {
-            spriteBatch.Draw(_textures.BlankTexture(), _drawRect, new Color(Color.DarkRed, 0.2f));
-        }
-        else
-        {
-            spriteBatch.Draw(_textures.BlankTexture(), _drawRect, new Color(Color.Green, 0.2f));
-        }
         
+        if (player.LooksLeft())
+            DrawEntity(player, playerTexture.Side);
+        else if (player.LooksRight())
+            DrawEntity(player, playerTexture.Side);
+        else if (player.LooksForward())
+            DrawEntity(player, playerTexture.Front);
+        else if (player.LooksBack())
+            DrawEntity(player, playerTexture.Back);
+
+        DrawPlayerName(player);
+    }
+
+    private void DrawPlayerName(Player player)
+    {
+        DrawString($"{player.Name}\nx:{player.Position.X:0.0}\ny:{player.Position.Y:0.0}", player.Position + player.DrawOrigin);
+    }
+
+    private void DrawEntity(Entity entity, Texture2D texture = null)
+    {
+        texture ??= _textures.GetTexture(entity.TextureName);
+        
+        
+        var drawRect = new Rectangle
+        (
+            ScreenAdapter.GetScreenVector(entity.Position + entity.DrawOrigin).ToPoint(),
+            ScreenAdapter.GetScreenVector(entity.DrawSize).ToPoint()
+        );
+        SpriteBatch.Draw(texture, drawRect, Color.White);
+    }
+
+    private void Draw(Texture2D texture, Rectangle mapRect)
+    {
+        SpriteBatch.Draw(texture, ScreenAdapter.GetScreenRect(mapRect), Color.White);
+    }
+
+    private void DrawString(string text, Vector2 mapPosition)
+    {
+        SpriteBatch.DrawString(_fonts.MainFont, text, ScreenAdapter.GetScreenVector(mapPosition), Color.White);
     }
 }

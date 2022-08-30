@@ -9,9 +9,14 @@ public class Player : Entity
     
     public byte Id;
     public string Name;
-    public Vector2 Position= Vector2.One;
     public Vector2 Direction = Vector2.Zero;
     public Vector2 Size = new Vector2(1, 2);
+
+    public Player()
+    {
+        DrawOrigin = new Vector2(-1f, -4);
+        DrawSize = new Vector2(2, 4);
+    }
 
     public bool LooksRight()
     {

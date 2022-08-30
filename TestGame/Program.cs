@@ -27,7 +27,6 @@ builder.ConfigureServices(
         services.AddScoped<UITexturesRepository>();
         services.AddScoped<MapTexturesRepository>();
         services.AddScoped<PlayerTexturesRepository>();
-        services.AddScoped<MapToScreenAdapter>();
         services.AddScoped<MapDrawer>();
 
         services.AddScoped<IMoveInput, WASDMoveInput>();
