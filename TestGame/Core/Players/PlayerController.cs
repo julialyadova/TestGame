@@ -7,7 +7,7 @@ namespace TestGame.Core.Players;
 
 public class PlayerController
 {
-    private const int MoveSpeed = 5;
+    private const int MoveSpeed = 8;
     
     public Player Player;
     public Point Focus;

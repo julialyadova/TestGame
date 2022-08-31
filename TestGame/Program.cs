@@ -6,7 +6,8 @@ using TestGame.Core.Players;
 using TestGame.Drawing;
 using TestGame.Drawing.Repositories;
 using TestGame.Network;
-using TestGame.Services;
+using TestGame.UI.Abstractions;
+using TestGame.UI.Implementations;
 using TestGame.UserInput;
 
 var builder = Host.CreateDefaultBuilder(args);
@@ -14,31 +15,38 @@ var builder = Host.CreateDefaultBuilder(args);
 builder.ConfigureServices(
     services =>
     {
-        services.AddHostedService<Game1>();
+        services.AddHostedService<MainGame>();
 
+        /* Network services */
         services.AddScoped<NetworkServiceProvider>();
         services.AddScoped<ServerPacketManager>();
         services.AddScoped<ClientPacketManager>();
 
+        /* Main game classes */
         services.AddScoped<World>();
+        services.AddScoped<Camera>();
         services.AddScoped<PlayerController>();
 
+        /* Repositories */
         services.AddScoped<FontsRepository>();
         services.AddScoped<UITexturesRepository>();
         services.AddScoped<MapTexturesRepository>();
         services.AddScoped<PlayerTexturesRepository>();
+        
+        /* Game Drawers */
         services.AddScoped<MapDrawer>();
 
+        /* User inputs */
         services.AddScoped<IMoveInput, WASDMoveInput>();
         services.AddScoped<IZoomInput, MouseWheelZoomInput>();
         services.AddScoped<IPointerInput, MousePointerInput>();
-        services.AddScoped<IControlsInput, KeyboardControlsInput>();
         services.AddScoped<KeyboardInput>();
 
-        
-        services.AddScoped<MapInputAdapter>();
-        services.AddScoped<PlayerInputAdapter>();
+        /* UI */
+        services.AddScoped<ILoadingUI, MyraLoadingUI>();
+        services.AddScoped<IBuildUI, MyraBuildUI>();
 
+        /* Config */
         services.AddSingleton(Config.FromFile("config.json"));
     });
 

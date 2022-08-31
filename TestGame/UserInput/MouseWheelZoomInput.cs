@@ -1,12 +1,13 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 
 namespace TestGame.UserInput;
 
 public class MouseWheelZoomInput : IZoomInput
 {
-    private int _previousScrollWheelValue = 0;
-    private int _deltaScrollWheelValue = 0;
+    private const float ZoomSpeed = 0.0005f;
+    
+    private int _previousScrollWheelValue;
+    private int _deltaScrollWheelValue;
     
     public void UpdateState()
     {
@@ -20,8 +21,8 @@ public class MouseWheelZoomInput : IZoomInput
         return _deltaScrollWheelValue != 0;
     }
 
-    public int GetZoomValue()
+    public float GetZoomValue()
     {
-        return _deltaScrollWheelValue;
+        return _deltaScrollWheelValue * ZoomSpeed;
     }
 }

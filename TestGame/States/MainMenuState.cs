@@ -2,18 +2,15 @@
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Xna.Framework.Graphics;
 using Myra.Graphics2D.UI;
 using TestGame.Drawing;
+using TestGame.States.Base;
 
 namespace TestGame.States;
 
-public class MainMenuState : GameState
+public class MainMenuState : MainState
 {
     private Desktop _desktop;
-    private TextButton _hostButton;
-    private TextButton _joinButton;
-    private TextButton _exitButton;
     private MainMenuBgDrawer _bgDrawer;
 
     public MainMenuState(IServiceProvider services)
@@ -28,36 +25,28 @@ public class MainMenuState : GameState
         _desktop = new Desktop();
         _desktop.Root = project.Root;
         
-        _hostButton = _desktop.Root.FindWidgetById("host") as TextButton;
-        _hostButton.Click += (s, a) =>
+        var hostButton = _desktop.Root.FindWidgetById("host") as TextButton;
+        hostButton.Click += (_, _) =>
         {
-            SetState(HostGameState);
+            SetState(StartServerState);
         };
         
-        _joinButton = _desktop.Root.FindWidgetById("join") as TextButton;
-        _joinButton.Click += (s, a) =>
+        var joinButton = _desktop.Root.FindWidgetById("join") as TextButton;
+        joinButton.Click += (_, _) =>
         {
-            SetState(JoinGameState);
+            SetState(JoinServerState);
         };
         
-        _exitButton = _desktop.Root.FindWidgetById("exit") as TextButton;
-        _exitButton.Click += (s, a) =>
+        var exitButton = _desktop.Root.FindWidgetById("exit") as TextButton;
+        exitButton.Click += (_, _) =>
         {
             services.GetRequiredService<IHostApplicationLifetime>().StopApplication();
         };
     }
 
-    public override void HandleInputs(float deltaTime) { }
-
-    public override void Update(float deltaTime) { }
-
     public override void Draw()
     {
         _bgDrawer.Draw();
-    }
-    
-    public override void DrawUI()
-    {
         _desktop.Render();
     }
 }

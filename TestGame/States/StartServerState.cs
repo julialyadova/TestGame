@@ -6,22 +6,26 @@ using TestGame.Core;
 using TestGame.Core.Entities.Creatures;
 using TestGame.Core.Map;
 using TestGame.Network;
+using TestGame.States.Base;
+using TestGame.UI.Abstractions;
 
 namespace TestGame.States;
 
-public class HostGameState : LoadGameState
+public class StartServerState : MainState
 {
     private NetworkServiceProvider _network;
-    private ILogger<HostGameState> _logger;
+    private ILogger<StartServerState> _logger;
     private World _world;
     private MapGenerator _mapGenerator;
+    private ILoadingUI _loadingUI;
 
-    public HostGameState(IServiceProvider services) : base(services)
+    public StartServerState(IServiceProvider services)
     {
         _network = services.GetRequiredService<NetworkServiceProvider>();
         _world = services.GetRequiredService<World>();
-        _logger = services.GetRequiredService<ILogger<HostGameState>>();
+        _logger = services.GetRequiredService<ILogger<StartServerState>>();
         _mapGenerator = new MapGenerator();
+        _loadingUI = services.GetRequiredService<ILoadingUI>();
     }
 
     public override void Enter()
@@ -34,8 +38,9 @@ public class HostGameState : LoadGameState
     {
         base.Update(deltaTime);
 
-        ShowLoadingMessage($"{100 * _mapGenerator.Progress:0.00}%");
-        
+        _loadingUI.ShowMessage($"{100 * _mapGenerator.Progress:0.00}%");
+        _loadingUI.Update(deltaTime);
+
         if (_mapGenerator.Done)
         {
             _logger.LogInformation("Map generated. Starting Server");
@@ -43,7 +48,13 @@ public class HostGameState : LoadGameState
             player.Name = "Host";
             _world.SpawnMainPlayer(player);
             _network.Host();
-            SetState(ExploreWorldState);
+            SetState(PlayState);
         }
+    }
+
+    public override void Draw()
+    {
+        base.Draw();
+        _loadingUI.Draw();
     }
 }

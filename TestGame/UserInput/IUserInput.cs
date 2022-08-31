@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace TestGame.UserInput;
+﻿namespace TestGame.UserInput;
 
 public interface IUserInput
 {

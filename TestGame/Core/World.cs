@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
@@ -13,18 +11,22 @@ namespace TestGame.Core;
 
 public class World
 {
-    public bool IsLoaded;
+    private readonly ILogger<World> _logger;
+
+    public bool IsLoaded { get; private set; }
     public readonly WorldMap Map;
     public readonly GamePlayers Players;
     public readonly PlayerController PlayerController;
-    private readonly ILogger<World> _logger;
+    public readonly Camera MainCamera;
 
     public World(ILogger<World> logger)
     {
         _logger = logger;
+        
         Map = new (new Point(1000,1000));
         Players = new();
         PlayerController = new PlayerController(Map);
+        MainCamera = new Camera();
         _logger.LogDebug("Initialized");
     }
     
@@ -57,11 +59,6 @@ public class World
         player.Position = Map.SpawnPoint.ToVector2();
         Players.Add(player);
         _logger.LogInformation("Player {Username} spawned", player.Name);
-    }
-
-    public Player GetMainPlayer()
-    {
-        return PlayerController.Player;
     }
 
     public void Quit()

@@ -1,7 +1,5 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using TestGame.Extensions;
 
 namespace TestGame.Drawing;
 
@@ -18,25 +16,23 @@ public class Camera
         _zoom = 1f;
     }
 
-    public Matrix GetTransformMatrix(GraphicsDevice graphicsDevice)
+    public Matrix GetTransformMatrix(Point resolution)
     {
         return Matrix.CreateTranslation(new Vector3(-_position.X, -_position.Y, 0)) *
                Matrix.CreateScale(new Vector3(_zoom, _zoom, 1)) *
-               Matrix.CreateTranslation(new Vector3(graphicsDevice.Viewport.Width * 0.5f, graphicsDevice.Viewport.Height * 0.5f, 0));
+               Matrix.CreateTranslation(new Vector3(resolution.X * 0.5f, resolution.Y * 0.5f, 0));
     }
 
-    public Rectangle GetViewport(GraphicsDevice graphicsDevice)
+    public Rectangle GetViewport(Point resolution)
     {
-        var screenSize = graphicsDevice.Viewport.Bounds.Size;
-        var margin = screenSize.ToVector2() * (2 - _zoom);
+        var margin = resolution.ToVector2() * (2 - _zoom);
         return new Rectangle
         (
             (int)(_position.X - margin.X / 2),
             (int)(_position.Y - margin.Y / 2),
-            (int)(screenSize.X + margin.X),
-            (int)(screenSize.Y + margin.Y)
+            (int)(resolution.X + margin.X),
+            (int)(resolution.Y + margin.Y)
         );
-        return new Rectangle((_position.ToPoint() - graphicsDevice.Viewport.Bounds.Size.Divide(2)), graphicsDevice.Viewport.Bounds.Size);
     }
 
     public void Move(Vector2 direction)

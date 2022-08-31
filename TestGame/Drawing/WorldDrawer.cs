@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.Linq;
-using FontStashSharp;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TestGame.Core;
 using TestGame.Core.Entities.Base;
 using TestGame.Core.Entities.Creatures;
-using TestGame.Core.Entities.Structures;
 using TestGame.Core.Map;
 using TestGame.Core.Players;
 using TestGame.Drawing.Repositories;
-using TestGame.Extensions;
 
 namespace TestGame.Drawing;
 
@@ -33,9 +29,9 @@ public class MapDrawer : GameDrawer
         _fonts = services.GetRequiredService<FontsRepository>();
     }
 
-    public void Draw(World world, Camera camera)
+    public void Draw(World world)
     {
-        SetMapViewport(camera);
+        SetMapViewport(world.MainCamera);
         
         SpriteBatch.Begin(
             SpriteSortMode.Deferred,
@@ -44,7 +40,7 @@ public class MapDrawer : GameDrawer
             null,
             null,
             null,
-            camera.GetTransformMatrix(SpriteBatch.GraphicsDevice));
+            world.MainCamera.GetTransformMatrix(SpriteBatch.GraphicsDevice.Viewport.Bounds.Size));
 
         DrawTerrain(world.Map.Terrain);
         DrawEntities(world);
@@ -54,7 +50,7 @@ public class MapDrawer : GameDrawer
 
     private void SetMapViewport(Camera camera)
     {
-        var screenViewport = camera.GetViewport(SpriteBatch.GraphicsDevice);
+        var screenViewport = camera.GetViewport(SpriteBatch.GraphicsDevice.Viewport.Bounds.Size);
         _viewport = ScreenAdapter.GetMapRect(screenViewport);
         _viewport.X += _margins.X;
         _viewport.Y += _margins.Y;

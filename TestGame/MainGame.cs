@@ -8,50 +8,51 @@ using Microsoft.Xna.Framework.Graphics;
 using Myra;
 using TestGame.Drawing;
 using TestGame.Drawing.Repositories;
-using TestGame.States;
+using TestGame.States.Base;
 
 namespace TestGame;
 
-public class Game1 : Game, IHostedService
+public class MainGame : Game, IHostedService
 {
-
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private IServiceProvider _services;
-    public Game1(IServiceProvider services)
+    
+    public MainGame(IServiceProvider services)
     {
         _services = services;
         _graphics = new GraphicsDeviceManager(this);
+        _graphics.PreferredBackBufferWidth = 1280;
+        _graphics.PreferredBackBufferHeight = 720;
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-        ;
+
         var appLifetime = services.GetRequiredService<IHostApplicationLifetime>();
         Exiting += (sender, args) => appLifetime.StopApplication();
     }
 
     protected override void Initialize()
     {
-        _graphics.PreferredBackBufferWidth = 1280;
-        _graphics.PreferredBackBufferHeight = 720;
         _graphics.ApplyChanges();
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
-        MyraEnvironment.Game = this;
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+        
+        MyraEnvironment.Game = this;
         ContentRepository.GraphicsDevice = GraphicsDevice;
         ContentRepository.ContentManager = Content;
         GameDrawer.SpriteBatch = _spriteBatch;
+        MainState.LoadContent(_services);
         GameState.LoadContent(_services);
-        
     }
 
     protected override void Update(GameTime gameTime)
     {
-        GameState.CurrentState.HandleInputs((float)gameTime.ElapsedGameTime.TotalSeconds);
-        GameState.CurrentState.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+        MainState.CurrentState.HandleInputs((float)gameTime.ElapsedGameTime.TotalSeconds);
+        MainState.CurrentState.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
         base.Update(gameTime);
     }
@@ -60,10 +61,8 @@ public class Game1 : Game, IHostedService
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
         
-        GameState.CurrentState.Draw();
-        GameState.CurrentState.DrawUI();
+        MainState.CurrentState.Draw();
 
-        
         base.Draw(gameTime);
     }
 

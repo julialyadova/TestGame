@@ -4,22 +4,22 @@ namespace TestGame.UserInput;
 
 public class KeyboardInput : IUserInput
 {
-    private KeyboardState previousState;
-    private KeyboardState currentState;
+    private KeyboardState _previousState;
+    private KeyboardState _currentState;
 
     public void UpdateState()
     {
-        previousState = currentState;
-        currentState = Keyboard.GetState();
+        _previousState = _currentState;
+        _currentState = Keyboard.GetState();
     }
 
     public bool IsKeyFirstPressed(Keys key)
     {
-        return previousState.IsKeyUp(key) && currentState.IsKeyDown(key);
+        return _previousState.IsKeyUp(key) && _currentState.IsKeyDown(key);
     }
     
     public bool IsKeyReleased(Keys key)
     {
-        return previousState.IsKeyDown(key) && currentState.IsKeyUp(key);
+        return _previousState.IsKeyDown(key) && _currentState.IsKeyUp(key);
     }
 }
