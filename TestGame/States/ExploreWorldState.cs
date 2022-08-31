@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework.Input;
 using TestGame.Drawing;
@@ -26,8 +27,14 @@ public class ExploreWorldState : PlayGameState
             Camera.LookAt(ScreenAdapter.GetScreenVector(World.PlayerController.Player.Position));
         }
         
-        if (Keyboard.GetState().IsKeyDown(Keys.B))
+        if (KeysInput.IsKeyFirstPressed(Keys.Escape))
+        {
+            SetState(MainMenuState);
+        }
+        if (KeysInput.IsKeyFirstPressed(Keys.B))
+        {
             SetState(BuildState);
+        }
     }
 
     public override void Update(float deltaTime)

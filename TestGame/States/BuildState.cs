@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Xna.Framework.Input;
 using Myra.Graphics2D.UI;
@@ -25,8 +26,10 @@ public class BuildState : PlayGameState
     {
         base.HandleInputs(deltaTime);
         
-        if (Keyboard.GetState().IsKeyDown(Keys.N))
+        if (KeysInput.IsKeyFirstPressed(Keys.Escape))
+        {
             SetState(ExploreWorldState);
+        }
     }
 
     public override void DrawUI()

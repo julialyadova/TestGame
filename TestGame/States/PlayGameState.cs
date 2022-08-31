@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework.Input;
 using TestGame.Core;
@@ -15,6 +16,7 @@ public abstract class PlayGameState : GameState
     protected World World;
     protected Camera Camera;
     private IZoomInput ZoomInput;
+    protected KeyboardInput KeysInput;
 
     public PlayGameState(IServiceProvider services)
     {
@@ -23,6 +25,7 @@ public abstract class PlayGameState : GameState
         World = services.GetRequiredService<World>();
         Camera = new Camera();
         ZoomInput = services.GetRequiredService<IZoomInput>();
+        KeysInput = services.GetRequiredService<KeyboardInput>();
     }
 
     public override void Enter()
@@ -31,13 +34,9 @@ public abstract class PlayGameState : GameState
 
     public override void HandleInputs(float deltaTime)
     {
-        if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-        {
-            Network.Stop();
-            SetState(MainMenuState);
-        }
-
+        KeysInput.UpdateState();
         ZoomInput.UpdateState();
+        
         if (ZoomInput.IsZooming())
         {
             Camera.Zoom(ZoomInput.GetZoomValue() / 5000f);

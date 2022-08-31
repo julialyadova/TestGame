@@ -33,6 +33,8 @@ builder.ConfigureServices(
         services.AddScoped<IZoomInput, MouseWheelZoomInput>();
         services.AddScoped<IPointerInput, MousePointerInput>();
         services.AddScoped<IControlsInput, KeyboardControlsInput>();
+        services.AddScoped<KeyboardInput>();
+
         
         services.AddScoped<MapInputAdapter>();
         services.AddScoped<PlayerInputAdapter>();
