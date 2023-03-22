@@ -11,9 +11,9 @@ public abstract class ScreenAdapter
         return mapVector * TileSize;
     }
 
-    public static Vector2 GetMapVector(Vector2 screenVector)
+    public static Vector2 GetMapPosition(Vector2 screenPosition)
     {
-        return screenVector / TileSize;
+        return screenPosition / TileSize;
     }
     
     public static Rectangle GetScreenRect(Rectangle mapRect)

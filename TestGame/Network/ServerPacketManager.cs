@@ -75,8 +75,8 @@ public class ServerPacketManager
             PlayerId = _connectedPeers[peer.Id],
             Name = packet.Username,
             Texture = packet.Texture,
-            X = _world.Map.SpawnPoint.X,
-            Y = _world.Map.SpawnPoint.Y
+            X = _world.SpawnPoint.X,
+            Y = _world.SpawnPoint.Y
         };
     }
 

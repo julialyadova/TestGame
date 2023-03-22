@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using TestGame.Core.Entities.Structures;
+using TestGame.Extensions;
 
 namespace TestGame.Core.Map;
 
@@ -32,6 +33,10 @@ public class MapGenerator
             if (random.Next(0, 40) == 1)
             {
                 map.Build(new Tree(), position);
+            }
+
+            if (random.Next(0, 20) == 1)
+            {
                 map.Terrain.SetSurface(SurfaceType.Podzol, position);
             }
 
@@ -41,7 +46,6 @@ public class MapGenerator
             }
             Progress += percentsPerTile;
         }
-        map.SpawnPoint = Point.Zero;
         Done = true;
     }
 

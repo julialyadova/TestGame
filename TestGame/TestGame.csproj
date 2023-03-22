@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <RollForward>Major</RollForward>
         <PublishReadyToRun>false</PublishReadyToRun>
         <TieredCompilation>false</TieredCompilation>
@@ -39,14 +39,14 @@
     <ItemGroup>
         <PackageReference Include="Json.Net" Version="1.0.33" />
         <PackageReference Include="LiteNetLib" Version="1.0.0-rc.3" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0-preview.7.22375.6" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0-preview.7.22375.6" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0-preview.7.22375.6" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0-preview.7.22375.6" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
         <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
         <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
-        <PackageReference Include="Myra" Version="1.4.2" />
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0-preview.7.22375.6" />
+        <PackageReference Include="Myra" Version="1.4.4" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
     </ItemGroup>
     <ItemGroup>
       <None Remove="App.config" />

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using TestGame.Drawing;
 
 namespace TestGame.Input
 {

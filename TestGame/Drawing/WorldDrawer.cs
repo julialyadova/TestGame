@@ -40,7 +40,7 @@ public class MapDrawer : GameDrawer
             null,
             null,
             null,
-            world.MainCamera.GetTransformMatrix(SpriteBatch.GraphicsDevice.Viewport.Bounds.Size));
+            world.MainCamera.GetTransformMatrix());
 
         DrawTerrain(world.Map.Terrain);
         DrawEntities(world);
@@ -50,7 +50,7 @@ public class MapDrawer : GameDrawer
 
     private void SetMapViewport(Camera camera)
     {
-        var screenViewport = camera.GetViewport(SpriteBatch.GraphicsDevice.Viewport.Bounds.Size);
+        var screenViewport = camera.GetViewport();
         _viewport = ScreenAdapter.GetMapRect(screenViewport);
         _viewport.X += _margins.X;
         _viewport.Y += _margins.Y;

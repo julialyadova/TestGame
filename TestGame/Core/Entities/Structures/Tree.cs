@@ -10,10 +10,10 @@ public class Tree : Structure, IAnimated
     private float _rotatePerFrame = 0.001f;
     public Tree()
     {
-        DrawOrigin = new Vector2(1f,2f);
+        DrawOrigin = new Vector2(1f,1f);
         DrawSize = new Vector2(4f,8f);
         Anchor = new Vector2(0.5f, 1f);
-        MapSize = new Point(2,2);
+        MapSize = new Point(2,1);
         Height = 3;
         TextureName = "Textures/Structures/Trees/tree";
     }

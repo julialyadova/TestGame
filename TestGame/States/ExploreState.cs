@@ -31,5 +31,10 @@ public class ExploreState : GameState
         {
             world.MainCamera.Zoom(Input.Zoom.Value);
         }
+
+        if (Input.Pointer.Action == PointerAction.Click)
+        {
+            world.Click(Input.Pointer.Position);
+        }
     }
 }

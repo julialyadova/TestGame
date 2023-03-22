@@ -13,7 +13,6 @@ public class WorldMap
     public int Seed; //todo remove to generation info class
     public Point Size { get; }
     public Rectangle Bounds { get;}
-    public Point SpawnPoint; //todo remove to World Class
     public Terrain Terrain;
     public Action<Structure> OnStructureRemoved;
 
@@ -27,7 +26,6 @@ public class WorldMap
         Bounds = new Rectangle(Point.Zero, Size);
         _structuresMap = new Structure[Size.X,Size.Y];
         Terrain = new Terrain(Size);
-        SpawnPoint = Size.Divide(2);
     }
 
 

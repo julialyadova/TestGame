@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Myra.Assets;
 using Myra.Graphics2D.UI;
 using TestGame.Drawing;
 using TestGame.States.Base;

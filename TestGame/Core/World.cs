@@ -15,8 +15,8 @@ public class World
     private readonly ILogger<World> _logger;
 
     public Action OnExit;
-    public bool IsLoaded { get; private set; }
     public readonly WorldMap Map;
+    public Point SpawnPoint = new(10,10);
     public readonly GamePlayers Players;
     public readonly PlayerController CurrentPlayer;
     public readonly Camera MainCamera;
@@ -35,8 +35,7 @@ public class World
     public void Click(Point position)
     {
         _logger.LogDebug("Clicked at {ClickPosition}", position);
-        if (IsLoaded)
-            Map.Build(new Wall(1), position);
+        Map.Build(new Tree(), ScreenAdapter.GetMapPosition(MainCamera.GetWorldPosition(position)).ToPoint());
     }
 
     public void Animate()
@@ -51,21 +50,20 @@ public class World
     public void SpawnMainPlayer(Player player)
     {
         CurrentPlayer.Player = player;
-        player.Position = Map.SpawnPoint.ToVector2();
+        player.Position = SpawnPoint.ToVector2();
         Players.Add(player);
         _logger.LogInformation("Player {Username} is set as main user-controlled player", player.Name);
     }
 
     public void SpawnPlayer(Player player)
     {
-        player.Position = Map.SpawnPoint.ToVector2();
+        player.Position = SpawnPoint.ToVector2();
         Players.Add(player);
         _logger.LogInformation("Player {Username} spawned", player.Name);
     }
 
     public void Exit()
     {
-        IsLoaded = false;
         OnExit?.Invoke();
     }
 }
