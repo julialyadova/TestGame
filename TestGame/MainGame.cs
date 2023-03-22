@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Myra;
 using TestGame.Drawing;
 using TestGame.Drawing.Repositories;
+using TestGame.Input;
 using TestGame.States.Base;
 
 namespace TestGame;
@@ -17,10 +18,12 @@ public class MainGame : Game, IHostedService
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private IServiceProvider _services;
+    private InputService _inputs;
     
     public MainGame(IServiceProvider services)
     {
         _services = services;
+        _inputs = services.GetRequiredService<InputService>();
         _graphics = new GraphicsDeviceManager(this);
         _graphics.PreferredBackBufferWidth = 1280;
         _graphics.PreferredBackBufferHeight = 720;
@@ -51,6 +54,7 @@ public class MainGame : Game, IHostedService
 
     protected override void Update(GameTime gameTime)
     {
+        _inputs.Update();
         MainState.CurrentState.HandleInputs((float)gameTime.ElapsedGameTime.TotalSeconds);
         MainState.CurrentState.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 

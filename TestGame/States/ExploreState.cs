@@ -1,45 +1,35 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Xna.Framework.Input;
-using TestGame.Core;
+﻿using TestGame.Core;
 using TestGame.Drawing;
+using TestGame.Input;
 using TestGame.States.Base;
-using TestGame.UserInput;
 
 namespace TestGame.States;
 
 public class ExploreState : GameState
 {
-    private readonly IMoveInput _moveInput;
-    private readonly KeyboardInput _keysInput;
-    private readonly IZoomInput _zoomInput;
-
-    public ExploreState(IServiceProvider services)
-    {
-        _moveInput = services.GetRequiredService<IMoveInput>();
-        _keysInput = services.GetRequiredService<KeyboardInput>();
-        _zoomInput = services.GetRequiredService<IZoomInput>();
-    }
+    public ExploreState(InputService inputService) : base(inputService) { }
 
     public override void HandleInputs(float deltaTime, World world)
     {
-        _moveInput.UpdateState();
-        if (_moveInput.IsMoving())
+        if (Input.Movement.State != MovementState.NotMoving)
         {
-            world.PlayerController.Move(_moveInput.GetDirection(), deltaTime);
-            world.MainCamera.LookAt(ScreenAdapter.GetScreenVector(world.PlayerController.Player.Position));
+            world.CurrentPlayer.Move(Input.Movement.Direction, deltaTime);
+            world.MainCamera.LookAt(ScreenAdapter.GetScreenVector(world.CurrentPlayer.Player.Position));
         }
         
-        _keysInput.UpdateState();
-        if (_keysInput.IsKeyFirstPressed(Keys.B))
+        if (Input.SpecialKeys.IsClicked(SpecialKeys.BuildMode))
         {
             SetState(BuildState);
         }
-        
-        _zoomInput.UpdateState();
-        if (_zoomInput.IsZooming())
+
+        if (Input.SpecialKeys.IsClicked(SpecialKeys.Exit))
         {
-            world.MainCamera.Zoom(_zoomInput.GetZoomValue());
+            world.Exit();
+        }
+
+        if (Input.Zoom.IsZooming)
+        {
+            world.MainCamera.Zoom(Input.Zoom.Value);
         }
     }
 }

@@ -5,10 +5,10 @@ using TestGame.Core;
 using TestGame.Core.Players;
 using TestGame.Drawing;
 using TestGame.Drawing.Repositories;
+using TestGame.Input;
 using TestGame.Network;
 using TestGame.UI.Abstractions;
 using TestGame.UI.Implementations;
-using TestGame.UserInput;
 
 var builder = Host.CreateDefaultBuilder(args);
 
@@ -37,10 +37,7 @@ builder.ConfigureServices(
         services.AddScoped<MapDrawer>();
 
         /* User inputs */
-        services.AddScoped<IMoveInput, WASDMoveInput>();
-        services.AddScoped<IZoomInput, MouseWheelZoomInput>();
-        services.AddScoped<IPointerInput, MousePointerInput>();
-        services.AddScoped<KeyboardInput>();
+        services.AddScoped<InputService>();
 
         /* UI */
         services.AddScoped<ILoadingUI, MyraLoadingUI>();

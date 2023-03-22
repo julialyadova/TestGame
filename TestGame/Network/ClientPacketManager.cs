@@ -37,7 +37,7 @@ public class ClientPacketManager
     {
         return new JoinRequestPacket()
         {
-            Username = _world.PlayerController.Player.Name
+            Username = _world.CurrentPlayer.Player.Name
         };
     }
     
@@ -45,15 +45,15 @@ public class ClientPacketManager
     {
         return new JoinPacket()
         {
-            Username = _world.PlayerController.Player.Name,
-            Texture = _world.PlayerController.Player.TextureName
+            Username = _world.CurrentPlayer.Player.Name,
+            Texture = _world.CurrentPlayer.Player.TextureName
         };
     }
 
     public async Task OnJoinAccepted(JoinAcceptedPacket packet)
     {
         
-        _world.PlayerController.Player.Id = packet.PlayerId;
+        _world.CurrentPlayer.Player.Id = packet.PlayerId;
         
         //await _world.LoadAsync(new Save() {MapSeed = packet.MapSeed});
         
@@ -66,15 +66,15 @@ public class ClientPacketManager
 
     public void SpawnPlayer(SpawnPlayerPacket packet)
     {
-        if (packet.PlayerId == _world.PlayerController.Player.Id)
+        if (packet.PlayerId == _world.CurrentPlayer.Player.Id)
         {
-            _world.PlayerController.Player.Position = new Vector2(packet.X, packet.Y);
-            _world.Players.Add(_world.PlayerController.Player);
+            _world.CurrentPlayer.Player.Position = new Vector2(packet.X, packet.Y);
+            _world.Players.Add(_world.CurrentPlayer.Player);
             _connected = true;
 
             _syncPacket = new SyncPlayerPacket()
             {
-                PlayerId = _world.PlayerController.Player.Id
+                PlayerId = _world.CurrentPlayer.Player.Id
             };
         }
         else if (!_world.Players.Exists(packet.PlayerId))
@@ -100,19 +100,19 @@ public class ClientPacketManager
 
     public void SyncPlayer(SyncPlayerPacket packet)
     {
-        if (packet.PlayerId != _world.PlayerController.Player.Id && _world.Players.Exists(packet.PlayerId))
+        if (packet.PlayerId != _world.CurrentPlayer.Player.Id && _world.Players.Exists(packet.PlayerId))
             _world.Players.FindById(packet.PlayerId).Position = new Vector2(packet.X, packet.Y);
     }
 
     public void Disconnect()
     {
         _connected = false;
-        _world.Quit();
+        _world.Exit();
     }
 
     public void OnPlayerDiconnected(PlayerDisconnectedPacket packet)
     {
-        if (packet.PlayerId == _world.PlayerController.Player.Id)
+        if (packet.PlayerId == _world.CurrentPlayer.Player.Id)
         {
             Disconnect();
         }
